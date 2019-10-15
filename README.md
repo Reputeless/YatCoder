@@ -186,6 +186,7 @@ int main()
 ```C++
 int main()
 {
-	Print << (IsEven(ReadInt() * ReadInt()) ? "Even" : "Odd");
+	const int32 a = ReadInt(), b = ReadInt();
+	Print << (IsEven(a * b) ? "Even" : "Odd");
 }
 ```
