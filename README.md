@@ -166,3 +166,26 @@ true
 
 🚧🚧🚧
 
+
+## AtCoder の解答例
+
+### [PracticeA - Welcome to AtCoder](https://atcoder.jp/contests/abs/tasks/practice_1)
+
+```C++
+int main()
+{
+	const int32 a = ReadInt();
+	const int32 b = ReadInt(), c = ReadInt();
+	const String s = ReadLine();
+	Print << (a + b + c) << ' ' << s;
+}
+```
+
+### [ABC086A - Product]()
+
+```C++
+int main()
+{
+	Print << (IsEven(ReadInt() * ReadInt()) ? "Even" : "Odd");
+}
+```
