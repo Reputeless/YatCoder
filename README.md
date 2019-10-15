@@ -134,14 +134,14 @@ int main()
 ```C++
 int main()
 {
-	Print << 12345;
-	Print << 10 << "abc" << 5;
-	Print << 123.45678;
-	Print << (int128(1) << 100);
-	Print << (10 < 20);
-	Print << Array<int>{ 11, 22, 33 };
+    Print << 12345;
+    Print << 10 << "abc" << 5;
+    Print << 123.45678;
+    Print << (int128(1) << 100);
+    Print << (10 < 20);
+    Print << Array<int>{ 11, 22, 33 };
     Print << 0_dp << 1.11 << ' ' << 1_dp << 2.22;
-	Print << 123.45678;
+    Print << 123.45678;
 }
 ```
 出力:
