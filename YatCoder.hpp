@@ -301,9 +301,23 @@ namespace yat
 		//size_t lastIndexNotOfAny(const String& anyof, size_t offset = npos) const;
 		//size_t lastIndexNotOfAny(const value_type* anyof, size_t offset = npos) const;
 		int32 compare(const String& text) const noexcept { return m_string.compare(text.m_string); }
-		int32 compare(const value_type* text) const
+		int32 compare(const value_type* text) const { return m_string.compare(text); }
+		bool operator ==(const String& text) const { return m_string == text.m_string; }
+		bool operator !=(const String& text) const { return m_string != text.m_string; }
+		bool operator <(const String& text) const { return m_string < text.m_string; }
+		bool operator >(const String& text) const {	return m_string > text.m_string; }
+		bool operator <=(const String& text) const { return m_string <= text.m_string; }
+		bool operator >=(const String& text) const { return m_string >= text.m_string; }
+		size_t count(value_type ch) const noexcept { return std::count(begin(), end(), ch); }
+		size_t count(StringView view) const
 		{
-			return m_string.compare(text);
+			size_t count = 0;
+			for (auto it = begin();; ++it, ++count)
+			{
+				it = std::search(it, end(), view.begin(), view.end());
+				if (it == end())
+					return count;
+			}
 		}
 	};
 	template <class StringViewIsh, class = String::IsStringViewIsh<StringViewIsh>>
