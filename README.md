@@ -170,7 +170,6 @@ true
 ## AtCoder の解答例
 
 ### [PracticeA - Welcome to AtCoder](https://atcoder.jp/contests/abs/tasks/practice_1)
-
 ```C++
 int main()
 {
@@ -182,11 +181,18 @@ int main()
 ```
 
 ### [ABC086A - Product](https://atcoder.jp/contests/abs/tasks/abc086_a)
-
 ```C++
 int main()
 {
 	const int32 a = ReadInt(), b = ReadInt();
 	Print << (IsEven(a * b) ? "Even" : "Odd");
+}
+```
+
+### [ABC081A - Placing Marbles](https://atcoder.jp/contests/abs/tasks/abc081_a)
+```C++
+int main()
+{
+	Print << ReadLine().count('1');
 }
 ```
