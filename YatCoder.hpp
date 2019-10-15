@@ -235,6 +235,118 @@ namespace yat
 	}
 
 	constexpr auto Print = detail::Print_impl();
+
+
+	////////////////////////////////
+	//
+	//	7. 標準入力
+	//
+	////////////////////////////////
+
+	//	標準入力
+	template <class Type> inline Type Read_impl() { Type t; std::cin >> t; return t; }
+	template <class Type> inline bool Read_impl(Type& t) { return !!(std::cin >> t); }
+
+	//	標準入力から数値を 1 つ読み込む
+	inline int8  ReadInt8()  { return Read_impl<int8>();  }
+	inline int16 ReadInt16() { return Read_impl<int16>(); }
+	inline int32 ReadInt32() { return Read_impl<int32>(); }
+	inline int64 ReadInt64() { return Read_impl<int64>(); }
+	inline int8  ReadUint8()  { return Read_impl<uint8>();  }
+	inline int16 ReadUint16() { return Read_impl<uint16>(); }
+	inline int32 ReadUint32() { return Read_impl<uint32>(); }
+	inline int64 ReadUint64() { return Read_impl<uint64>(); }
+# if YAT_WITH_FEATURE(INT128)
+	// [ToDo] inline int128 ReadInt128() { ... } 
+	// [ToDo] inline uint128 ReadUint128() { ... }
+# endif
+	inline float32  ReadFloat32()  { return Read_impl<float32>();  }
+	inline float64  ReadFloat64()  { return Read_impl<float64>();  }
+	inline float128 ReadFloat128() { return Read_impl<float128>(); }
+	inline int32  ReadInt()  { return ReadInt32(); }
+	inline uint32 ReadUint() { return ReadUint32(); }
+	inline float32 ReadFloat()  { return ReadFloat32();}
+	inline float64 ReadDouble() { return ReadFloat64(); }
+
+	//	標準入力から数値を 1 つ読み込む
+	//	* 入力の終わりに達していた場合 `false` を返す
+	inline bool ReadInt8(int8& x)   { return Read_impl<int8>(x);  }
+	inline bool ReadInt16(int16& x) { return Read_impl<int16>(x); }
+	inline bool ReadInt32(int32& x) { return Read_impl<int32>(x); }
+	inline bool ReadInt64(int64& x) { return Read_impl<int64>(x); }
+	inline bool ReadUint8(uint8& x)   { return Read_impl<uint8>(x);  }
+	inline bool ReadUint16(uint16& x) { return Read_impl<uint16>(x); }
+	inline bool ReadUint32(uint32& x) { return Read_impl<uint32>(x); }
+	inline bool ReadUint64(uint64& x) { return Read_impl<uint64>(x); }
+# if YAT_WITH_FEATURE(INT128)
+	// [ToDo] inline bool ReadInt128(int128& x) { ... } 
+	// [ToDo] inline bool ReadUint128(uint128& x) { ... }
+# endif
+	inline bool ReadFloat32(float32& x)   { return Read_impl<float32>(x);  }
+	inline bool ReadFloat64(float64& x)   { return Read_impl<float64>(x);  }
+	inline bool ReadFloat128(float128& x) { return Read_impl<float128>(x); }
+	inline bool ReadInt(int32& x)   { return ReadInt32(x); }
+	inline bool ReadUint(uint32& x) { return ReadUint32(x); }
+	inline bool ReadFloat(float32& x)  { return Read_impl<float32>(x); }
+	inline bool ReadDouble(float64& x) { return Read_impl<float64>(x); }
+
+	//	標準入力から、文字を 1 つ読み込む
+	//	* 空白や改行の場合は無視して次の空白や改行でない文字を読み込む
+	inline char ReadChar() { return Read_impl<char>(); }
+
+	//	標準入力から、文字を 1 つ読み込む
+	//	* 空白や改行の場合は無視して次の空白や改行でない文字を読み込む
+	//	* 入力の終わりに達していた場合 `false` を返す
+	inline bool ReadChar(char& c) { return Read_impl<char>(c); }
+
+	//	標準入力から、空白や改行を含む文字を 1 つ読み込む
+	inline char ReadCodePoint() { return static_cast<char>(std::getchar()); }
+
+	//	標準入力から、空白や改行を含む文字を 1 つ読み込む
+	//	* 入力の終わりに達していた場合 `false` を返す
+	inline bool ReadCodePoint(char& c) { c = static_cast<char>(std::getchar()); return (c != EOF); }
+
+	//	標準入力から、空白を含まない 1 単語を読み込む
+	inline String ReadWord() { String s; std::cin >> s; return s; }
+	
+	//	標準入力から、空白も含んで 1 行を読み込む
+	//	* 空白行の場合は無視して次の空白でない行を読み込む
+	inline String ReadLine() { String s; do { std::getline(std::cin, s); } while (s.empty()); return s; }
+
+	//	標準入力から、空白を含まない 1 単語を読み込む
+	//	* 入力の終わりに達していた場合 `false` を返す
+	inline bool ReadWord(String& s) { return !!(std::cin >> s); }
+
+	//	標準入力から、空白も含んで 1 行を読み込む
+	//	* 空白行の場合は無視して次の空白でない行を読み込む
+	//	* 入力の終わりに達していた場合 `false` を返す
+	inline bool ReadLine(String& s) { do { std::getline(std::cin, s); if (!std::cin) return false; } while (s.empty()); return true; }
+
+
+	////////////////////////////////
+	//
+	//	7. 便利関数
+	//
+	////////////////////////////////
+
+	namespace detail
+	{
+		struct Odd_impl
+		{
+			template <class Type> constexpr bool operator()(const Type& x) const { return (x % 2) != 0; }
+		};
+
+		struct Even_impl
+		{
+			template <class Type> constexpr bool operator()(const Type& x) const { return (x % 2) == 0; }
+		};
+	}
+
+	// 奇数の場合に `true` を返す
+	constexpr auto IsOdd = detail::Odd_impl();
+
+	// 偶数の場合に `true` を返す
+	constexpr auto IsEven = detail::Even_impl();
 }
 
 using namespace std;
