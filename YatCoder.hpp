@@ -87,7 +87,7 @@ namespace yat
 
 	//	小数点数以下の桁数指定
 	//	* Format や Print に渡す
-	inline constexpr FormatData::DecimalPlaces operator ""_dp(uint64 width)
+	inline constexpr FormatData::DecimalPlaces operator ""_dp(unsigned long long width)
 	{
 		return FormatData::DecimalPlaces(static_cast<int32>(width));
 	}
