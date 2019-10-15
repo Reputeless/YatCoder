@@ -32,14 +32,14 @@
 ```C++
 int main()
 {
-    uint8 a = 0b0101;
-    int32 b = -200;
-    uint64 c = 1234567890123;
-    int128 d = int128(1) << 100; // 1267650600228229401496703205376
-    uint128 e = uint128(-1); // 340282366920938463463374607431768211455
-    float32 f = 3.14f;
-    float64 g = 3.14;
-    float128 h = 3.14L;
+	uint8 a = 0b0101;
+	int32 b = -200;
+	uint64 c = 1234567890123;
+	int128 d = int128(1) << 100; // 1267650600228229401496703205376
+	uint128 e = uint128(-1); // 340282366920938463463374607431768211455
+	float32 f = 3.14f;
+	float64 g = 3.14;
+	float128 h = 3.14L;
 }
 ```
 
@@ -97,12 +97,12 @@ int main()
 ```C++
 int main()
 {
-    String s1 = Format(12345); // 12345
-    String s2 = Format(10, "abc", 5); // 10abc5
-    String s3 = Format(123.45678); // 123.4567800000
-    String s4 = Format(int128(1) << 100)); // 1267650600228229401496703205376
-    String s5 = Format(10 < 20); // true
-    String s6 = Format(Array<int>{ 11, 22, 33 }); // {11, 22, 33}
+	String s1 = Format(12345); // 12345
+	String s2 = Format(10, "abc", 5); // 10abc5
+	String s3 = Format(123.45678); // 123.4567800000
+	String s4 = Format(int128(1) << 100)); // 1267650600228229401496703205376
+	String s5 = Format(10 < 20); // true
+	String s6 = Format(Array<int>{ 11, 22, 33 }); // {11, 22, 33}
 }
 ```
 
@@ -134,14 +134,14 @@ int main()
 ```C++
 int main()
 {
-    Print << 12345;
-    Print << 10 << "abc" << 5;
-    Print << 123.45678;
-    Print << (int128(1) << 100);
-    Print << (10 < 20);
-    Print << Array<int>{ 11, 22, 33 };
-    Print << 0_dp << 1.11 << ' ' << 1_dp << 2.22;
-    Print << 123.45678;
+	Print << 12345;
+	Print << 10 << "abc" << 5;
+	Print << 123.45678;
+	Print << (int128(1) << 100);
+	Print << (10 < 20);
+	Print << Array<int>{ 11, 22, 33 };
+	Print << 0_dp << 1.11 << ' ' << 1_dp << 2.22;
+	Print << 123.45678;
 }
 ```
 出力:
