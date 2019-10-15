@@ -169,7 +169,18 @@ namespace yat
 	inline void Formatter(FormatData& f, uint16 x) { f.string.append(std::to_string(x)); }
 	inline void Formatter(FormatData& f, uint32 x) { f.string.append(std::to_string(x)); }
 	inline void Formatter(FormatData& f, uint64 x) { f.string.append(std::to_string(x)); }
-
+# if YAT_WITH_FEATURE(INT128)
+	inline void Formatter(FormatData& f, int128 x)
+	{
+		detail::Int128Formatter fmt(x);
+		f.string.append(fmt.data(), fmt.size());
+	}
+	inline void Formatter(FormatData& f, uint128 x)
+	{
+		detail::Int128Formatter fmt(x);
+		f.string.append(fmt.data(), fmt.size());
+	}
+# endif
 	inline void Formatter(FormatData& f, float32 x)  { detail::FloatFormatter_impl(f, x); }
 	inline void Formatter(FormatData& f, float64 x)  { detail::FloatFormatter_impl(f, x); }
 	inline void Formatter(FormatData& f, float128 x) { detail::FloatFormatter_impl(f, x); }
