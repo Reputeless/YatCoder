@@ -207,6 +207,34 @@ namespace yat
 	//	フォーマット可能な型の値を文字列に変換
 	//	Format(...)
 	constexpr auto Format = detail::Format_impl();
+
+
+	////////////////////////////////
+	//
+	//	6. 標準出力
+	//
+	////////////////////////////////
+
+	//	標準出力
+	namespace detail
+	{
+		struct PrintBuffer
+		{
+			std::unique_ptr<FormatData> formatData;
+			PrintBuffer() : formatData(std::make_unique<FormatData>()) {}
+			PrintBuffer(PrintBuffer&& o) noexcept : formatData(std::move(o.formatData)) {}
+			~PrintBuffer() { if (formatData) std::cout << formatData->string << '\n'; }
+			template <class Type> PrintBuffer& operator <<(const Type& x) { Formatter(*formatData, x); return *this; }
+		};
+
+		struct Print_impl
+		{
+			template <class Type, class = decltype(Formatter(std::declval<FormatData&>(), std::declval<Type>()))>
+			PrintBuffer operator <<(const Type& x) const { PrintBuffer b; Formatter(*b.formatData, x); return b; }
+		};
+	}
+
+	constexpr auto Print = detail::Print_impl();
 }
 
 using namespace std;
