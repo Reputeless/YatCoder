@@ -30,8 +30,6 @@
 | float128 | 四倍精度浮動小数点数型     |
 
 ```C++
-# include "YatCoder.hpp"
-
 int main()
 {
     uint8 a = 0b0101;
@@ -53,8 +51,6 @@ int main()
 | String | 文字列型 |
 
 ```C++
-# include "YatCoder.hpp"
-
 int main()
 {
 	String s = "YatCoder";
@@ -112,8 +108,6 @@ int main()
 `Format()` に `N_dp` (N は整数) を渡すと、それ以降の浮動小数点数型の引数に対して、小数点以下 N 桁まで変換します。デフォルトでは 10 です。
 
 ```C++
-# include "YatCoder.hpp"
-
 int main()
 {
 	String s1 = Format(123.456789);			// 123.4567890000
