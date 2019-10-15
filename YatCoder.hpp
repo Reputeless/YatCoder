@@ -54,8 +54,392 @@ namespace yat
 	//
 	////////////////////////////////
 
+	class String;
+
+	class StringView
+	{
+	public:
+		using traits_type				= std::char_traits<char>;
+		using value_type				= char;
+		using pointer					= const char*;
+		using const_pointer				= const char*;
+		using reference					= const char&;
+		using const_reference			= const char&;
+		using const_iterator			= pointer;
+		using iterator					= const_iterator;
+		using const_reverse_iterator	= std::reverse_iterator<const_iterator>;
+		using reverse_iterator			= const_reverse_iterator;
+		using size_type					= size_t;
+		using difference_type			= ptrdiff_t;
+	private:
+		const char* m_ptr = nullptr;
+		size_t m_length = 0;
+	public:
+		static constexpr size_type npos = size_type{ static_cast<size_type>(-1) };
+		StringView() = default;
+		StringView(const StringView&) = default;
+		StringView(StringView&&) = default;
+		StringView(const std::string& str) noexcept : m_ptr(str.data()), m_length(str.length()) {}
+		constexpr StringView(const value_type* text, size_type count) : m_ptr(text), m_length(count) {}
+		constexpr StringView(const value_type* text) : m_ptr(text), m_length(text ? traits_type::length(text) : 0) {}
+		StringView& operator =(const StringView&) = default;
+		StringView& operator =(StringView&&) = default;
+		constexpr const_iterator begin() const noexcept { return m_ptr; }
+		constexpr const_iterator end() const noexcept { return m_ptr + m_length; }
+		constexpr const_iterator cbegin() const noexcept { return m_ptr; }
+		constexpr const_iterator cend() const noexcept { return m_ptr + m_length; }
+		const_reverse_iterator rbegin() const noexcept { return const_reverse_iterator(end()); }
+		const_reverse_iterator rend() const noexcept { return const_reverse_iterator(begin()); }
+		const_reverse_iterator crbegin() const noexcept { return const_reverse_iterator(end()); }
+		const_reverse_iterator crend() const noexcept { return const_reverse_iterator(begin()); }
+		constexpr const_reference operator[](size_type offset) const { return m_ptr[offset]; }
+		const_reference at(size_t offset) const { if (offset >= m_length) throw std::out_of_range("StringView::at"); return m_ptr[offset]; }
+		constexpr const_reference front() const { return m_ptr[0]; }
+		constexpr const_reference back()  const { return m_ptr[m_length - 1]; }
+		constexpr const_pointer data()  const { return m_ptr; }
+		constexpr size_type size() const noexcept { return m_length; }
+		constexpr size_type size_bytes() const noexcept { return m_length * sizeof(value_type); }
+		constexpr size_type length() const noexcept { return m_length; }
+		constexpr size_type max_size() const noexcept { return m_length; }
+		constexpr bool empty() const noexcept { return m_length == 0; }
+		constexpr bool isEmpty() const noexcept { return m_length == 0; }
+		constexpr explicit operator bool() const noexcept { return (!isEmpty()); }
+		constexpr void remove_prefix(size_type n) noexcept
+		{
+			if (n > m_length) n = m_length;
+			m_ptr += n;
+			m_length -= n;
+		}
+		constexpr void remove_suffix(size_type n) noexcept
+		{
+			if (n > m_length) n = m_length;
+			m_length -= n;
+		}
+		void swap(StringView& other) noexcept { std::swap(m_length, other.m_length); std::swap(m_ptr, other.m_ptr); }
+		constexpr void clear() noexcept { *this = StringView(); }
+		size_type copy(value_type* dst, const size_type n, const size_type pos = 0) const
+		{
+			if (pos > m_length)
+				throw std::out_of_range("StringView::copy");
+			const size_type rlen = std::min(n, m_length - pos);
+			for (auto it = m_ptr + pos, end = it + rlen; it != end;)
+				*dst++ = *it++;
+			return rlen;
+		}
+		StringView substr(const size_type pos = 0, const size_type n = npos) const
+		{
+			if (pos > size())
+				throw std::out_of_range("StringView::substr");
+			return StringView(m_ptr + pos, std::min(n, m_length - pos));
+		}
+		int compare(StringView str) const
+		{
+			const int cmp = traits_type::compare(m_ptr, str.m_ptr, std::min(m_length, str.m_length));
+			return cmp != 0 ? cmp : (m_length == str.m_length ? 0 : m_length < str.m_length ? -1 : 1);
+		}
+	};
+	inline bool operator ==(const StringView x, const StringView y) noexcept { return x.compare(y) == 0; }
+	inline bool operator !=(const StringView x, const StringView y) noexcept { return !(x == y); }
+	inline bool operator <(const StringView x, const StringView y) noexcept { return x.compare(y) < 0; }
+	inline bool operator >(const StringView x, const StringView y) noexcept { return x.compare(y) > 0; }
+	inline bool operator <=(const StringView x, const StringView y) noexcept { return x.compare(y) <= 0; }
+	inline bool operator >=(const StringView x, const StringView y) noexcept { return x.compare(y) >= 0; }
+
 	//	文字列型
-	using String = std::string;
+	class String
+	{
+	public:		
+		using string_type				= std::string;
+		using traits_type				= typename string_type::traits_type;
+		using allocator_type			= typename string_type::allocator_type;
+		using value_type				= typename string_type::value_type;
+		using size_type					= typename string_type::size_type;
+		using difference_type			= typename string_type::difference_type;
+		using pointer					= typename string_type::pointer;
+		using const_pointer				= typename string_type::const_pointer;
+		using reference					= typename string_type::reference;
+		using const_reference			= typename string_type::const_reference;
+		using iterator					= typename string_type::iterator;
+		using const_iterator			= typename string_type::const_iterator;
+		using reverse_iterator			= typename string_type::reverse_iterator;
+		using const_reverse_iterator	= typename string_type::const_reverse_iterator;
+	private:
+		string_type m_string;
+	public:
+		template <class StringViewIsh>
+		using IsStringViewIsh = std::enable_if_t<
+			std::is_convertible<const StringViewIsh&, StringView>::value &&
+			!std::is_convertible<const StringViewIsh&, const char*>::value>;
+		static constexpr size_type npos = size_type{ static_cast<size_type>(-1) };
+		String() = default;
+		String(const String& text) = default;
+		String(String&& text) = default;
+		template <class StringViewIsh, class = IsStringViewIsh<StringViewIsh>> explicit String(const StringViewIsh& viewish) : m_string(viewish.data(), viewish.size()) {}
+		operator StringView() const noexcept { return StringView(m_string.data(), m_string.size()); }
+		String(const string_type& text) : m_string(text) {}
+		String(string_type&& text) noexcept : m_string(std::move(text)) {}
+		String(const String& text, size_type pos) : m_string(text.m_string, pos) {}
+		String(const String& text, size_type pos, size_type count) : m_string(text.m_string, pos, count) {}
+		String(const value_type* text) : m_string(text) {}
+		String(const value_type* text, size_type count) : m_string(text, count) {}
+		String(std::initializer_list<value_type> ilist) : m_string(ilist) {}
+		String(size_t count, value_type ch) : m_string(count, ch) {}
+		String& operator =(const String& text) = default;
+		String& operator =(String&& text) = default;
+		String& operator =(const string_type& text) { return assign(text); }
+		String& operator =(string_type&& text) noexcept { return assign(std::move(text)); }
+		String& operator =(const value_type* text) { return assign(text); }
+		String& operator =(std::initializer_list<value_type> ilist) { return assign(ilist); }
+		template <class StringViewIsh, class = IsStringViewIsh<StringViewIsh>> String& operator =(const StringViewIsh& viewish) { return assign(viewish); }
+		String& assign(const String& text) { m_string.assign(text.m_string); return *this; }
+		String& assign(String&& text) { m_string.assign(std::move(text.m_string)); return *this; }
+		String& assign(const string_type& text) { m_string.assign(text); return *this; }
+		String& assign(string_type&& text) { m_string.assign(std::move(text)); return *this; }
+		String& assign(const value_type* text) { m_string.assign(text); return *this; }
+		String& assign(std::initializer_list<value_type> ilist) { m_string.assign(ilist); return *this; }
+		template <class StringViewIsh, class = IsStringViewIsh<StringViewIsh>> String& assign(const StringViewIsh& viewish) { m_string.assign(viewish.data(), viewish.size()); return *this; }
+		template <class Iterator> String& assign(Iterator first, Iterator last) { m_string.assign(first, last); return *this; }
+		String& operator +=(const String& text) { return append(text); }
+		String& operator +=(const string_type& text) { return append(text); }
+		String& operator +=(value_type ch) { return append(ch); }
+		String& operator +=(const value_type* text) { return append(text); }
+		String& operator +=(std::initializer_list<value_type> ilist) { return append(ilist); }
+		String& operator <<(const value_type ch) { return append(ch); }
+		template <class StringViewIsh, class = IsStringViewIsh<StringViewIsh>> String& operator +=(const StringViewIsh& viewish) { return append(viewish); }
+		String& append(const String& text) { m_string.append(text.m_string); return *this; }
+		String& append(const string_type& text) { m_string.append(text); return *this; }
+		String& append(value_type ch) { m_string.push_back(ch); return *this; }
+		String& append(const value_type* text) { m_string.append(text); return *this; }
+		String& append(const value_type* text, size_t count) { m_string.append(text, count); return *this; }
+		String& append(std::initializer_list<value_type> ilist) { m_string.append(ilist); return *this; }
+		String& append(size_t count, value_type ch) { m_string.append(count, ch); return *this; }
+		template <class StringViewIsh, class = IsStringViewIsh<StringViewIsh>> String& append(const StringViewIsh& viewish) { m_string.append(viewish.data(), viewish.size()); return *this; }
+		template <class Iterator> String& append(Iterator first, Iterator last) { m_string.append(first, last); return *this; }
+		String& insert(size_t offset, const String& str) { m_string.insert(offset, str.m_string); return *this; }
+		String& insert(size_t offset, std::initializer_list<value_type> ilist) { m_string.insert(offset, ilist); return *this; }
+		String& insert(size_t offset, const value_type* str) { m_string.insert(offset, str); return *this; }
+		template <class StringViewIsh, class = String::IsStringViewIsh<StringViewIsh>> String& insert(size_t offset, const StringViewIsh& text) { m_string.insert(offset, text.data(), text.size()); return *this; }
+		String& insert(const size_t offset, size_t count, value_type ch) { m_string.insert(offset, count, ch); return *this; }
+		iterator insert(const_iterator where, value_type ch) { return insert(where, 1, ch); }
+		iterator insert(const_iterator where, size_t count, value_type ch)
+		{
+			const size_type off = std::distance(cbegin(), where);
+			m_string.insert(off, count, ch);
+			return begin() + static_cast<difference_type>(off);
+		}
+		template <class Iterator> iterator insert(const_iterator where, Iterator first, Iterator last) { return m_string.insert(where, first, last); }
+		template <class Iterator> String& insert(const_iterator first1, const_iterator last1, Iterator first2, Iterator last2) { m_string.insert(first1, last1, first2, last2); return *this; }
+		String& erase(size_t offset, size_t count = npos) { m_string.erase(offset, count); return *this; }
+		iterator erase(const_iterator where) { return erase(where, where + 1); }
+		iterator erase(const_iterator first, const_iterator last)
+		{
+			const size_type off = std::distance(cbegin(), first);
+			erase(off, static_cast<size_type>(last - first));
+			return begin() + static_cast<difference_type>(off);
+		}
+		void clear() noexcept { m_string.clear(); }
+		iterator begin() noexcept { return m_string.begin(); }
+		const_iterator begin() const noexcept { return m_string.begin(); }
+		const_iterator cbegin() const noexcept { return m_string.cbegin(); }
+		iterator end() noexcept { return m_string.end(); }
+		const_iterator end() const noexcept { return m_string.end(); }
+		const_iterator cend() const noexcept { return m_string.cend(); }
+		reverse_iterator rbegin() noexcept { return m_string.rbegin(); }
+		const_reverse_iterator rbegin() const noexcept { return m_string.rbegin(); }
+		const_reverse_iterator crbegin() const noexcept { return m_string.crbegin(); }
+		reverse_iterator rend() noexcept { return m_string.rend(); }
+		const_reverse_iterator rend() const noexcept { return m_string.rend(); }
+		const_reverse_iterator crend() const noexcept { return m_string.crend(); }
+		void shrink_to_fit() { m_string.shrink_to_fit(); }
+		void release() { clear(); shrink_to_fit(); }
+		value_type& at(size_t offset)& { return m_string.at(offset); }
+		const value_type& at(size_t offset) const& { return m_string.at(offset); }
+		value_type at(size_t offset)&& { return m_string.at(offset); }
+		value_type& operator[](size_t offset)& { return m_string[offset]; }
+		const value_type& operator[](size_t offset) const& { return m_string[offset]; }
+		value_type operator[](size_t offset)&& { return std::move(m_string[offset]); }
+		void push_front(value_type ch) { insert(begin(), ch); }
+		void push_back(value_type ch) { m_string.push_back(ch); }
+		void pop_front() { m_string.erase(m_string.begin()); }
+		void pop_back() { m_string.pop_back(); }
+		value_type& front() { return m_string.front(); }
+		const value_type& front() const { return m_string.front(); }
+		value_type& back() { return m_string.back(); }
+		const value_type& back() const { return m_string.back(); }
+		const value_type* c_str() const noexcept { return m_string.c_str(); }
+		const value_type* data() const noexcept { return m_string.data(); }
+		value_type* data() noexcept { return &m_string[0]; }
+		string_type& str() { return m_string; }
+		const string_type& str() const noexcept { return m_string; }
+		size_t length() const noexcept { return m_string.length(); }
+		size_t size() const noexcept { return m_string.size(); }
+		size_t size_bytes() const noexcept { return m_string.size() * sizeof(value_type); }
+		bool empty() const noexcept { return m_string.empty(); }
+		bool isEmpty() const noexcept { return m_string.empty(); }
+		explicit operator bool() const noexcept { return !m_string.empty(); }
+		size_t maxSize() const noexcept { return m_string.max_size(); }
+		size_t capacity() const noexcept { return m_string.capacity(); }
+		void resize(size_t newSize) { m_string.resize(newSize); }
+		void resize(size_t newSize, value_type ch) { m_string.resize(newSize, ch); }
+		void reserve(size_t newCapacity) { m_string.reserve(newCapacity); }
+		void swap(String& text) noexcept { m_string.swap(text.m_string); }
+		String substr(size_t offset = 0, size_t count = npos) const { return m_string.substr(offset, count); }
+		//size_t indexOf(const String& text, size_t offset = 0) const noexcept;
+		//size_t indexOf(const value_type* text, size_t offset = 0) const;
+		//size_t indexOf(value_type ch, size_t offset = 0) const;
+		//size_t indexOfNot(value_type ch, size_t offset = 0) const;
+		//size_t lastIndexOf(const String& text, size_t offset = npos) const;
+		//size_t lastIndexOf(const value_type* text, size_t offset = npos) const;
+		//size_t lastIndexOf(value_type ch, size_t offset = npos) const;
+		//size_t lastIndexNotOf(value_type ch, size_t offset = npos) const;
+		//size_t indexOfAny(const String& anyof, size_t offset = 0) const;
+		//size_t indexOfAny(const value_type* anyof, size_t offset = 0) const;
+		//size_t lastIndexOfAny(const String& anyof, size_t offset = npos) const;
+		//size_t lastIndexOfAny(const value_type* anyof, size_t offset = npos) const;
+		//size_t indexNotOfAny(const String& anyof, size_t offset = 0) const;
+		//size_t indexNotOfAny(const value_type* anyof, size_t offset = 0) const;
+		//size_t lastIndexNotOfAny(const String& anyof, size_t offset = npos) const;
+		//size_t lastIndexNotOfAny(const value_type* anyof, size_t offset = npos) const;
+		int32 compare(const String& text) const noexcept { return m_string.compare(text.m_string); }
+		int32 compare(const value_type* text) const
+		{
+			return m_string.compare(text);
+		}
+	};
+	template <class StringViewIsh, class = String::IsStringViewIsh<StringViewIsh>>
+	inline String operator +(const String::value_type lhs, const StringViewIsh& rhs)
+	{
+		String result;
+		result.reserve(1 + rhs.size());
+		result.append(lhs);
+		result.append(rhs);
+		return result;
+	}
+	String operator +(const String::value_type lhs, const String& rhs)
+	{
+		String result;
+		result.reserve(1 + rhs.size());
+		result.append(lhs);
+		result.append(rhs);
+		return result;
+	}
+	String operator +(const String::value_type lhs, String&& rhs) { rhs.push_front(lhs); return std::move(rhs); }
+	template <class StringViewIsh, class = String::IsStringViewIsh<StringViewIsh>>
+	inline String operator +(const String::value_type* lhs, const StringViewIsh& rhs)
+	{
+		const size_t len = std::char_traits<String::value_type>::length(lhs);
+		String result;
+		result.reserve(len + rhs.size());
+		result.append(lhs, len);
+		result.append(rhs);
+		return result;
+	}
+	String operator +(const String::value_type* lhs, const String& rhs)
+	{
+		const size_t len = std::char_traits<String::value_type>::length(lhs);
+		String result;
+		result.reserve(len + rhs.size());
+		result.append(lhs, len);
+		result.append(rhs);
+		return result;
+	}
+	String operator +(const String::value_type* lhs, String&& rhs) { return std::move(rhs.insert(0, lhs)); }
+	template <class StringViewIsh, class = String::IsStringViewIsh<StringViewIsh>>
+	inline String operator +(const StringViewIsh& lhs, const String::value_type rhs)
+	{
+		String result;
+		result.reserve(lhs.size() + 1);
+		result.append(lhs);
+		result.append(rhs);
+		return result;
+	}
+	template <class StringViewIsh, class = String::IsStringViewIsh<StringViewIsh>>
+	inline String operator +(const StringViewIsh& lhs, const String::value_type* rhs)
+	{
+		const size_t len = std::char_traits<String::value_type>::length(rhs);
+		String result;
+		result.reserve(lhs.size() + len);
+		result.append(lhs);
+		result.append(rhs, len);
+		return result;
+	}
+	template <class StringViewIshT, class StringViewIshU, class = String::IsStringViewIsh<StringViewIshT>, class = String::IsStringViewIsh<StringViewIshU>>
+	inline String operator +(const StringViewIshT& lhs, const StringViewIshU& rhs)
+	{
+		String result;
+		result.reserve(lhs.size() + rhs.size());
+		result.append(lhs);
+		result.append(rhs);
+		return result;
+	}
+	template <class StringViewIsh, class = String::IsStringViewIsh<StringViewIsh>>
+	inline String operator +(const StringViewIsh& lhs, const String& rhs)
+	{
+		String result;
+		result.reserve(lhs.size() + rhs.size());
+		result.append(lhs);
+		result.append(rhs);
+		return result;
+	}
+	template <class StringViewIsh, class = String::IsStringViewIsh<StringViewIsh>> inline String operator +(const StringViewIsh& lhs, String&& rhs) { return std::move(rhs.insert(0, lhs)); }
+	String operator +(const String& lhs, const String::value_type rhs)
+	{
+		String result;
+		result.reserve(lhs.size() + 1);
+		result.append(lhs);
+		result.append(rhs);
+		return result;
+	}
+	String operator +(const String& lhs, const String::value_type* rhs)
+	{
+		const size_t len = std::char_traits<String::value_type>::length(rhs);
+		String result;
+		result.reserve(lhs.size() + len);
+		result.append(lhs);
+		result.append(rhs, len);
+		return result;
+	}
+	template <class StringViewIsh, class = String::IsStringViewIsh<StringViewIsh>>
+	inline String operator +(const String& lhs, const StringViewIsh& rhs)
+	{
+		String result;
+		result.reserve(lhs.size() + rhs.size());
+		result.append(lhs);
+		result.append(rhs);
+		return result;
+	}
+	String operator +(const String& lhs, const String& rhs)
+	{
+		String result;
+		result.reserve(lhs.size() + rhs.size());
+		result.append(lhs);
+		result.append(rhs);
+		return result;
+	}
+	String operator +(const String& lhs, String&& rhs) { return std::move(rhs.insert(0, lhs)); }
+	String operator +(String&& lhs, const String::value_type rhs) { return std::move(lhs << rhs); }
+	String operator +(String&& lhs, const String::value_type* rhs) { return std::move(lhs.append(rhs)); }
+	template <class StringViewIsh, class = String::IsStringViewIsh<StringViewIsh>> inline String operator +(String&& lhs, const StringViewIsh& rhs) { return std::move(lhs.append(rhs)); }
+	String operator +(String&& lhs, const String& rhs) { return std::move(lhs.append(rhs)); }
+	String operator +(String&& lhs, String&& rhs)
+	{
+		if (rhs.size() <= lhs.capacity() - lhs.size() || rhs.capacity() - rhs.size() < lhs.size()) return std::move(lhs.append(rhs));
+		else return std::move(rhs.insert(0, lhs));
+	}
+	bool operator ==(const String::value_type* lhs, const String& rhs) { return lhs == rhs.str(); }
+	bool operator ==(const String& lhs, const String::value_type* rhs) { return lhs.str() == rhs; }
+	bool operator !=(const String::value_type* lhs, const String& rhs) { return lhs != rhs.str(); }
+	bool operator !=(const String& lhs, const String::value_type* rhs) { return lhs.str() != rhs; }
+	bool operator <(const String::value_type* lhs, const String& rhs) { return lhs < rhs.str(); }
+	bool operator <(const String& lhs, const String::value_type* rhs) { return lhs.str() < rhs; }
+	bool operator >(const String::value_type* lhs, const String& rhs) { return lhs > rhs.str(); }
+	bool operator >(const String& lhs, const String::value_type* rhs) { return lhs.str() > rhs; }
+	bool operator <=(const String::value_type* lhs, const String& rhs) { return lhs <= rhs.str(); }
+	bool operator <=(const String& lhs, const String::value_type* rhs) { return lhs.str() <= rhs; }
+	bool operator >=(const String::value_type* lhs, const String& rhs) { return lhs >= rhs.str(); }
+	bool operator >=(const String& lhs, const String::value_type* rhs) { return lhs.str() >= rhs; }
+	std::ostream& operator <<(std::ostream& os, const String& x) { return os << x.str(); }
+	std::istream& operator >>(std::istream& is, String& x) { return is >> x.str(); }
 
 
 	////////////////////////////////
@@ -311,7 +695,7 @@ namespace yat
 	
 	//	標準入力から、空白も含んで 1 行を読み込む
 	//	* 空白行の場合は無視して次の空白でない行を読み込む
-	inline String ReadLine() { String s; do { std::getline(std::cin, s); } while (s.empty()); return s; }
+	inline String ReadLine() { String s; do { std::getline(std::cin, s.str()); } while (s.empty()); return s; }
 
 	//	標準入力から、空白を含まない 1 単語を読み込む
 	//	* 入力の終わりに達していた場合 `false` を返す
@@ -320,7 +704,7 @@ namespace yat
 	//	標準入力から、空白も含んで 1 行を読み込む
 	//	* 空白行の場合は無視して次の空白でない行を読み込む
 	//	* 入力の終わりに達していた場合 `false` を返す
-	inline bool ReadLine(String& s) { do { std::getline(std::cin, s); if (!std::cin) return false; } while (s.empty()); return true; }
+	inline bool ReadLine(String& s) { do { std::getline(std::cin, s.str()); if (!std::cin) return false; } while (s.empty()); return true; }
 
 
 	////////////////////////////////
@@ -331,15 +715,8 @@ namespace yat
 
 	namespace detail
 	{
-		struct Odd_impl
-		{
-			template <class Type> constexpr bool operator()(const Type& x) const { return (x % 2) != 0; }
-		};
-
-		struct Even_impl
-		{
-			template <class Type> constexpr bool operator()(const Type& x) const { return (x % 2) == 0; }
-		};
+		struct Odd_impl  { template <class Type> constexpr bool operator()(const Type& x) const { return (x % 2) != 0; } };
+		struct Even_impl { template <class Type> constexpr bool operator()(const Type& x) const { return (x % 2) == 0; } };
 	}
 
 	// 奇数の場合に `true` を返す
@@ -347,6 +724,12 @@ namespace yat
 
 	// 偶数の場合に `true` を返す
 	constexpr auto IsEven = detail::Even_impl();
+}
+
+namespace std
+{
+	inline void swap(yat::StringView& a, yat::StringView& b) noexcept { a.swap(b); }
+	inline void swap(yat::String& a, yat::String& b) noexcept { a.swap(b); }
 }
 
 using namespace std;
