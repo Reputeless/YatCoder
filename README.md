@@ -100,8 +100,9 @@ int main()
 	String s1 = Format(12345); // 12345
 	String s2 = Format(10, "abc", 5); // 10abc5
 	String s3 = Format(123.45678); // 123.4567800000
-	String s4 = Format(10 < 20); // true
-	String s5 = Format(Array<int>{ 11, 22, 33 }); // {11, 22, 33}
+	String s4 = Format(int128(1) << 100)); // 1267650600228229401496703205376
+	String s5 = Format(10 < 20); // true
+	String s6 = Format(Array<int>{ 11, 22, 33 }); // {11, 22, 33}
 }
 ```
 
