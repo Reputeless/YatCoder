@@ -53,7 +53,7 @@ int main()
 | String | 文字列型 |
 
 ```C++
-# include <YatCoder.hpp>
+# include "YatCoder.hpp"
 
 int main()
 {
