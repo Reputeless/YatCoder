@@ -5,13 +5,13 @@
 
 **ライセンス:** CC0 1.0 Universal
 
-## 機能
+# 機能
 
-### 1. インクルードされるヘッダ
+## 1. インクルードされるヘッダ
 
 `# include <bits/stdc++.h>`
 
-### 2. 数値型
+## 2. 数値型
 
 | 名前       | 説明              |
 |----------|-----------------|
@@ -57,7 +57,7 @@ int main()
 }
 ```
 
-#### size_t String::contains(char c);
+### `size_t String::contains(char c);`
 文字列中に含まれる文字 'c' の個数を返します。
 ```C++
 int main()
@@ -111,8 +111,8 @@ int main()
 | char          | a               |
 | const char*   | abc             |
 | String        | abc             |
-| Array<int>    | {11, 22, 33}    |
-| Array<String> | {aaa, bbb, ccc} |
+| Array&lt;int&gt;    | {11, 22, 33}    |
+| Array&lt;String&gt; | {aaa, bbb, ccc} |
 
 ```C++
 int main()
@@ -126,7 +126,7 @@ int main()
 }
 ```
 
-#### 小数点以下の桁数指定
+### 小数点以下の桁数指定
 
 `Format()` に `N_dp` (N は整数) を渡すと、それ以降の浮動小数点数型の引数に対して、小数点以下 N 桁まで変換します。デフォルトでは 10 です。小数点以下 (N+1) 桁目の数は四捨五入されます (例: `Format(2_dp, 1.76543)` では 5 が四捨五入されて `1.77`)
 
@@ -149,7 +149,7 @@ int main()
 ```
 
 
-### 6. 標準出力
+## 6. 標準出力
 
 **フォーマット可能** な型の値を `Print` に `<<` 演算子で送ると、`Format()` で文字列化されたのち標準出力されます。`<<` でつながった一連の `Print` の最後で自動的に改行が挿入されます。
 
@@ -179,17 +179,17 @@ true
 ```
 
 
-### 7. 標準入力
+## 7. 標準入力
 
 🚧🚧🚧
 
 
-### 8. 便利関数
+## 8. 便利関数
 
 🚧🚧🚧
 
 
-## AtCoder の解答例
+# AtCoder の解答例
 
 ### [PracticeA - Welcome to AtCoder](https://atcoder.jp/contests/abs/tasks/practice_1)
 ```C++
