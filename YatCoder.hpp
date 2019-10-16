@@ -881,6 +881,25 @@ namespace yat
 		constexpr N count() const noexcept { return m_start_iterator.count(); }
 		constexpr S step() const noexcept { return m_start_iterator.step(); }
 		constexpr bool isEmpty() const noexcept { return count() == 0; }
+		template <class Fty> constexpr N count_if(Fty f) const
+		{
+			if (isEmpty())
+				return 0;
+			N result = 0;
+			auto count_ = count();
+			auto value = startValue();
+			const auto step_ = step();
+			for (;;)
+			{
+				if (f(value))
+					++result;
+				if (--count_)
+					value += step_;
+				else
+					break;			
+			}
+			return result;
+		}
 	private:
 		iterator m_end_iterator;
 		iterator m_start_iterator;
@@ -926,6 +945,13 @@ namespace yat
 	//	9. 便利関数
 	//
 	////////////////////////////////
+
+	// x が min 以上 max 以下である場合に `true` を返す
+	template <class Type>
+	inline constexpr bool InRange(const Type& x, const Type& min, const Type& max)
+	{
+		return (min <= x) && (x <= max);
+	}
 
 	namespace detail
 	{
