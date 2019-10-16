@@ -845,7 +845,85 @@ namespace yat
 
 	////////////////////////////////
 	//
-	//	8. 便利関数
+	//	8. ループ
+	//
+	////////////////////////////////
+
+	template <class T, class N, class S>
+	class Step
+	{
+	public:
+		class Iterator
+		{
+		private:
+			T m_currentValue;
+			N m_count;
+			S m_step;
+		public:
+			constexpr Iterator() noexcept : m_currentValue(T()), m_count(N()), m_step(S()) {}
+			constexpr Iterator(T startValue, N count, S step) noexcept : m_currentValue(startValue), m_count(count), m_step(step) {}
+			constexpr Iterator& operator ++() noexcept { --m_count; m_currentValue += m_step; return *this; }
+			constexpr Iterator operator ++(int) noexcept { Iterator tmp = *this; --m_count; m_currentValue += m_step; return tmp; }
+			constexpr const T& operator *() const noexcept { return m_currentValue; }
+			constexpr const T* operator ->() const noexcept { return &m_currentValue; }
+			constexpr bool operator ==(const Iterator& other) const noexcept { return m_count == other.m_count; }
+			constexpr bool operator !=(const Iterator& other) const noexcept { return !(m_count == other.m_count); }
+			constexpr T currentValue() const noexcept { return m_currentValue; }
+			constexpr N count() const noexcept { return m_count; }
+			constexpr S step() const noexcept { return m_step; }
+		};
+		using value_type = T;
+		using iterator = Iterator;
+		constexpr Step(T startValue, N count, S step) noexcept : m_start_iterator(startValue, count, step) {}
+		constexpr iterator begin() const noexcept { return m_start_iterator; }
+		constexpr iterator end() const noexcept { return m_end_iterator; }
+		constexpr value_type startValue() const noexcept { return m_start_iterator.currentValue(); }
+		constexpr N count() const noexcept { return m_start_iterator.count(); }
+		constexpr S step() const noexcept { return m_start_iterator.step(); }
+		constexpr bool isEmpty() const noexcept { return count() == 0; }
+	private:
+		iterator m_end_iterator;
+		iterator m_start_iterator;
+	};
+
+	template <class N, std::enable_if_t<std::is_integral<N>::value> * = nullptr>
+	inline constexpr auto step(N n)
+	{
+		return Step<N, N, int32>(N(0), n, 1);
+	}
+
+	template <class T, class N, class S = int32, std::enable_if_t<std::is_integral<N>::value> * = nullptr>
+	inline constexpr auto step(T a, N n, S step = 1)
+	{
+		return Step<decltype(a + step), N, S>(a, n, step);
+	}
+
+	template<class T, class U, class S = int32, class StartType = std::common_type_t<T, U>, class CounterType = std::common_type_t<std::size_t, StartType>, std::enable_if_t<std::is_integral<StartType>::value> * = nullptr>
+	inline constexpr auto Range(T a, U b, S step = 1)
+	{
+		CounterType  n = 0;
+		using DiffType = std::common_type_t<int64, StartType>;
+		if (step == 0 || (b != a && (b < a) != (step < 0)))
+		{
+			n = 0;
+		}
+		else
+		{
+			S abs_s = step > 0 ? step : -step;
+			CounterType diff = b > a ? DiffType(b) - DiffType(a) : DiffType(a) - DiffType(b);
+			if (abs_s == 1)
+				n = diff;
+			else
+				n = diff / abs_s;
+			n++;
+		}
+		return Step<StartType, CounterType, S>(a, n, step);
+	}
+
+
+	////////////////////////////////
+	//
+	//	9. 便利関数
 	//
 	////////////////////////////////
 

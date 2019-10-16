@@ -467,3 +467,26 @@ int main()
 }
 ```
 
+### [ABC087B - Coins](https://atcoder.jp/contests/abs/tasks/abc087_b)
+```C++
+int main()
+{
+	const int32 N500 = ReadInt(), N100 = ReadInt(), N50 = ReadInt();
+	const int32 X = ReadInt();
+	int32 result = 0;
+
+	for (auto n500 : Range(0, N500))
+	{
+		for (auto n100 : Range(0, N100))
+		{
+			for (auto n50 : Range(0, N50))
+			{
+				const int32 sum = (n500 * 500) + (n100 * 100) + (n50 * 50);
+				result += (sum == X);
+			}
+		}
+	}
+
+	Print << result;
+}
+```
