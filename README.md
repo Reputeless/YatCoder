@@ -317,16 +317,52 @@ int main()
 
 #### `String ReadWord();`
 #### `bool ReadWord(String& s);`
+標準入力から空白や改行で区切られた一連の文字列を読み込み、その文字列を返します。
 
-
-🚧🚧🚧
+```C++
+int main()
+{
+	const String s1 = ReadWord();
+	const String s2 = ReadWord();
+	Print << s1;
+	Print << s2;
+}
+```
+入力
+```
+hello world
+```
+出力
+```
+hello
+world
+```
 
 ### 7.6 文字列の読み込み（空白を含む 1 行全部）
 
 #### `String ReadLine();`
 #### `bool ReadLine(String& s);`
+標準入力から 1 行読み込み、その文字列を返します。空白行はスキップし、次の空白でない行を読み込みます。
 
-🚧🚧🚧
+```C++
+int main()
+{
+	const String s1 = ReadLine();
+	const String s2 = ReadLine();
+	Print << s1;
+	Print << s2;
+}
+```
+入力
+```
+hello world
+hello yatcoder
+```
+出力
+```
+hello world
+hello yatcoder
+```
 
 ## 8. 便利関数・関数オブジェクト
 
