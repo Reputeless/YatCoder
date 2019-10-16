@@ -254,10 +254,10 @@ int main()
 10
 ```
 
-### 7.3 文字の読み込み
+### 7.3 文字の読み込み（空白を含まない）
 
-### `char ReadChar();`
-### `bool ReadChar(char& c);`
+#### `char ReadChar();`
+#### `bool ReadChar(char& c);`
 標準入力から文字を 1 つ読み込み、その文字を返します。空白や改行の場合、無視して次の空白や改行でない文字を読み込みます。
 
 ```C++
@@ -282,8 +282,10 @@ Y
 Y
 ```
 
-### `char ReadCodePoint();`
-### `bool ReadCodePoint(char& c);`
+### 7.4 文字の読み込み（空白を含む）
+
+#### `char ReadCodePoint();`
+#### `bool ReadCodePoint(char& c);`
 標準入力から文字を 1 つ読み込み、その文字を返します。空白や改行も 1 文字として扱います。
 
 ```C++
@@ -308,15 +310,24 @@ int main()
 #
 ```
 
-### 7.4 文字列の読み込み
+### 7.5 文字列の読み込み（空白を含まない）
+
+#### `String ReadWord();`
+#### `bool ReadWord(String& s);`
 
 
 🚧🚧🚧
 
+### 7.6 文字列の読み込み（空白を含む 1 行全部）
+
+#### `String ReadLine();`
+#### `bool ReadLine(String& s);`
+
+🚧🚧🚧
 
 ## 8. 便利関数・関数オブジェクト
 
-### `IsOdd`
+### 8.1 `IsOdd`
 `()` 演算子で渡した整数が奇数なら `true` を返します。
 
 ```C++
@@ -334,7 +345,7 @@ true
 false
 ```
 
-### `IsEven`
+### 8.2 `IsEven`
 `()` 演算子で渡した整数が偶数なら `true` を返します。
 
 ```C++
