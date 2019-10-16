@@ -47,6 +47,18 @@ namespace yat
 	using float64  = double;
 	using float128 = long double;
 
+	////////////////////////////////
+	//
+	//	X. 内部実装
+	//
+	////////////////////////////////
+	
+	namespace detail
+	{
+		struct Id_impl{ template <class Type> constexpr decltype(auto) operator()(Type&& x) const noexcept { return std::forward<Type>(x); }};
+	}
+	constexpr auto Id = detail::Id_impl();
+
 
 	////////////////////////////////
 	//
@@ -531,6 +543,9 @@ namespace yat
 		value_type at(size_t index)&& { return std::move(base_type::at(index)); }
 		Array& operator <<(const value_type& value) { push_back(value); return *this; }
 		Array& operator <<(value_type&& value) { push_back(std::forward<value_type>(value)); return *this; }
+		template <class Fty = decltype(Id), std::enable_if_t<std::is_convertible<std::result_of_t<Fty(Type)>, bool>::value>* = nullptr>
+		bool all(Fty f = Id) const { return std::all_of(begin(), end(), f); }
+		template <class Fty> Array& each(Fty f) { std::for_each(begin(), end(), f); return *this; }
 	};
 
 	////////////////////////////////
@@ -797,6 +812,36 @@ namespace yat
 	//	* 入力の終わりに達していた場合 `false` を返す
 	inline bool ReadLine(String& s) { do { std::getline(std::cin, s.str()); if (!std::cin) return false; } while (s.empty()); return true; }
 
+	template <class Type> inline Array<Type> ReadArray_impl(size_t n)
+	{
+		Array<Type> as(n);
+		for (auto& a : as)
+		{
+			std::cin >> a;
+		}
+		return as;
+	}
+
+	inline Array<int8>  ReadInt8Array(size_t n)  { return ReadArray_impl<int8>(n);  }
+	inline Array<int16> ReadInt16Array(size_t n) { return ReadArray_impl<int16>(n); }
+	inline Array<int32> ReadInt32Array(size_t n) { return ReadArray_impl<int32>(n); }
+	inline Array<int64> ReadInt64Array(size_t n) { return ReadArray_impl<int64>(n); }
+	inline Array<uint8>  ReadUint8Array(size_t n)  { return ReadArray_impl<uint8>(n);  }
+	inline Array<uint16> ReadUint16Array(size_t n) { return ReadArray_impl<uint16>(n); }
+	inline Array<uint32> ReadUint32Array(size_t n) { return ReadArray_impl<uint32>(n); }
+	inline Array<uint64> ReadUint64Array(size_t n) { return ReadArray_impl<uint64>(n); }
+# if YAT_WITH_FEATURE(INT128)
+	// [ToDo] inline Array<int128 ReadInt128Array(size_t n)   { ... }
+	// [ToDo] inline Array<uint128 ReadUint128Array(size_t n) { ... }
+# endif
+	inline Array<float32>  ReadFloat32Array(size_t n)  { return ReadArray_impl<float32>(n);  }
+	inline Array<float64>  ReadFloat64Array(size_t n)  { return ReadArray_impl<float64>(n);  }
+	inline Array<float128> ReadFloat128Array(size_t n) { return ReadArray_impl<float128>(n); }
+	inline Array<int32>  ReadIntArray(size_t n)  { return ReadInt32Array(n);  }
+	inline Array<uint32> ReadUintArray(size_t n) { return ReadUint32Array(n); }
+	inline Array<float32> ReadFloatArray(size_t n)  { return ReadFloat32Array(n); }
+	inline Array<float64> ReadDoubleArray(size_t n) { return ReadFloat64Array(n); }
+	
 
 	////////////////////////////////
 	//
