@@ -565,8 +565,8 @@ namespace yat
 
 			return result;
 		}
-		size_t count(const value_type& value) const { return std::count(begin(), enf(), value); }
-		template <class Fty> size_t count_if(Fty f) const { return std::count_if(begin(), enf(), f); }
+		size_t count(const value_type& value) const { return std::count(begin(), end(), value); }
+		template <class Fty> size_t count_if(Fty f) const { return std::count_if(begin(), end(), f); }
 		Array& drop(size_t n) { erase(begin(), begin() + std::min(n, size())); return *this; }
 		Array dropped(const size_t n) const
 		{
