@@ -57,7 +57,7 @@ int main()
 }
 ```
 
-### `size_t String::contains(char c);`
+### `size_t String::count(char c);`
 文字列中に含まれる文字 'c' の個数を返します。
 ```C++
 int main()
