@@ -59,11 +59,7 @@ namespace yat
 	}
 	constexpr auto Id = detail::Id_impl();
 
-	template <class Type = void>
-	inline constexpr auto Plus() noexcept
-	{
-		return std::plus<Type>();
-	}
+	template <class Type = void> inline constexpr auto Plus() noexcept { return std::plus<Type>(); }
 
 	////////////////////////////////
 	//
@@ -550,8 +546,764 @@ namespace yat
 		Array& operator <<(value_type&& value) { push_back(std::forward<value_type>(value)); return *this; }
 		template <class Fty = decltype(Id), std::enable_if_t<std::is_convertible<std::result_of_t<Fty(Type)>, bool>::value>* = nullptr>
 		bool all(Fty f = Id) const { return std::all_of(begin(), end(), f); }
+		template <class Fty = decltype(Id), std::enable_if_t<std::is_convertible<std::result_of_t<Fty(Type)>, bool>::value> * = nullptr>
+		bool any(Fty f = Id) const { return std::any_of(begin(), end(), f); }
+		Array& append(const Array& other_array) { insert(end(), other_array.begin(), other_array.end()); return *this; }
+		Array<Array<value_type>> chunk(const size_t n) const
+		{
+			Array<Array<value_type>> result;
+
+			if (n == 0)
+			{
+				return result;
+			}
+
+			for (size_t i = 0; i < (size() + n - 1) / n; ++i)
+			{
+				result.push_back(slice(i * n, n));
+			}
+
+			return result;
+		}
+		size_t count(const value_type& value) const
+		{
+			size_t result = 0;
+
+			for (const auto& v : *this)
+			{
+				if (v == value)
+				{
+					++result;
+				}
+			}
+
+			return result;
+		}
+		template <class Fty>
+		size_t count_if(Fty f) const
+		{
+			size_t result = 0;
+
+			for (const auto& v : *this)
+			{
+				if (f(v))
+				{
+					++result;
+				}
+			}
+
+			return result;
+		}
+		Array& drop(size_t n)
+		{
+			erase(begin(), begin() + std::min(n, size()));
+
+			return *this;
+		}
+		Array dropped(const size_t n) const
+		{
+			if (n >= size())
+			{
+				return Array();
+			}
+
+			return Array(begin() + n, end());
+		}
+		template <class Fty>
+		Array dropped_while(Fty f) const
+		{
+			return Array(std::find_if_not(begin(), end(), f), end());
+		}
 		template <class Fty> Array& each(Fty f) { std::for_each(begin(), end(), f); return *this; }
+		template <class Fty>
+		const Array& each(Fty f) const
+		{
+			for (const auto& v : *this)
+			{
+				f(v);
+			}
+
+			return *this;
+		}
+		template <class Fty>
+		Array& each_index(Fty f)
+		{
+			size_t i = 0;
+
+			for (auto& v : *this)
+			{
+				f(i++, v);
+			}
+
+			return *this;
+		}
+		template <class Fty>
+		const Array& each_index(Fty f) const
+		{
+			size_t i = 0;
+
+			for (const auto& v : *this)
+			{
+				f(i++, v);
+			}
+
+			return *this;
+		}
+		const value_type& fetch(const size_t index, const value_type& defaultValue) const
+		{
+			if (index >= size())
+			{
+				return defaultValue;
+			}
+
+			return operator[](index);
+		}
+		Array& fill(const value_type& value)
+		{
+			std::fill(begin(), end(), value);
+
+			return *this;
+		}
+		template <class Fty>
+		Array filter(Fty f) const
+		{
+			Array new_array;
+
+			for (const auto& v : *this)
+			{
+				if (f(v))
+				{
+					new_array.push_back(v);
+				}
+			}
+
+			return new_array;
+		}
+		Array<Array<value_type>> in_groups(const size_t group) const
+		{
+			Array<Array<value_type>> result;
+
+			if (group == 0)
+			{
+				return result;
+			}
+
+			const size_t div = size() / group;
+			const size_t mod = size() % group;
+			size_t index = 0;
+
+			for (size_t i = 0; i < group; ++i)
+			{
+				const size_t length = div + (mod > 0 && mod > i);
+
+				result.push_back(slice(index, length));
+
+				index += length;
+			}
+
+			return result;
+		}
+		bool includes(const value_type& value) const
+		{
+			for (const auto& v : *this)
+			{
+				if (v == value)
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
+		template <class Fty>
+		bool includes_if(Fty f) const
+		{
+			return any(f);
+		}
+		template <class T = Type>
+		bool isSorted() const
+		{
+			const size_t size_ = size();
+
+			if (size_ <= 1)
+			{
+				return true;
+			}
+
+			const value_type* p = data();
+
+			for (size_t i = 0; i < size_ - 1; ++i)
+			{
+				if (p[i] > p[i + 1])
+				{
+					return false;
+				}
+			}
+
+			return true;
+		}
+		String join(StringView sep = ", ", StringView begin = "{", StringView end = "}") const
+		{
+			String s;
+
+			s.append(begin);
+
+			bool isFirst = true;
+
+			for (const auto& v : *this)
+			{
+				if (isFirst)
+				{
+					isFirst = false;
+				}
+				else
+				{
+					s.append(sep);
+				}
+
+				s.append(Format(v));
+			}
+
+			s.append(end);
+
+			return s;
+		}
+		template <class Fty>
+		Array& keep_if(Fty f)
+		{
+			erase(std::remove_if(begin(), end(), std::not1(f)), end());
+
+			return *this;
+		}
+		template <class Fty>
+		auto map(Fty f) const
+		{
+			Array<std::decay_t<std::result_of_t<Fty(Type)>>> new_array;
+
+			new_array.reserve(size());
+
+			for (const auto& v : *this)
+			{
+				new_array.push_back(f(v));
+			}
+
+			return new_array;
+		}
+		template <class Fty = decltype(Id), std::enable_if_t<std::is_convertible<std::result_of_t<Fty(Type)>, bool>::value> * = nullptr>
+		bool none(Fty f = Id) const { return std::none_of(begin(), end(), f); }
+		template <class Fty, class R = std::decay_t<std::result_of_t<Fty(Type, Type)>>>
+		auto reduce(Fty f, R init) const
+		{
+			auto value = init;
+
+			for (const auto& v : *this)
+			{
+				value = f(value, v);
+			}
+
+			return value;
+		}
+		template <class Fty>
+		auto reduce1(Fty f) const
+		{
+			if (empty())
+			{
+				throw std::out_of_range("Array::reduce1() reduce from empty Array");
+			}
+
+			auto it = begin();
+			const auto itEnd = end();
+
+			std::result_of_t<Fty(value_type, value_type)> value = *it++;
+
+			while (it != itEnd)
+			{
+				value = f(value, *it++);
+			}
+
+			return value;
+		}
+		Array& remove(const value_type& value)
+		{
+			erase(std::remove(begin(), end(), value), end());
+
+			return *this;
+		}
+		Array removed(const value_type& value) const&
+		{
+			Array new_array;
+
+			for (const auto& v : *this)
+			{
+				if (v != value)
+				{
+					new_array.push_back(v);
+				}
+			}
+
+			return new_array;
+		}
+		Array removed(const value_type& value)&&
+		{
+			erase(std::remove(begin(), end(), value), end());
+
+			shrink_to_fit();
+
+			return std::move(*this);
+		}
+		Array& remove_at(const size_t index)
+		{
+			if (index >= size())
+			{
+				throw std::out_of_range("Array::remove_at() index out of range");
+			}
+
+			erase(begin() + index);
+
+			return *this;
+		}
+		Array removed_at(const size_t index) const
+		{
+			if (index >= size())
+			{
+				throw std::out_of_range("Array::removed_at() index out of range");
+			}
+
+			Array new_array;
+
+			new_array.reserve(size() - 1);
+
+			new_array.insert(new_array.end(), begin(), begin() + index);
+
+			new_array.insert(new_array.end(), begin() + index + 1, end());
+
+			return new_array;
+		}
+		template <class Fty>
+		Array& remove_if(Fty f)
+		{
+			erase(std::remove_if(begin(), end(), f), end());
+
+			return *this;
+		}
+		template <class Fty>
+		Array removed_if(Fty f) const&
+		{
+			Array new_array;
+
+			for (const auto& v : *this)
+			{
+				if (!f(v))
+				{
+					new_array.push_back(v);
+				}
+			}
+
+			return new_array;
+		}
+		template <class Fty>
+		Array removed_if(Fty f)&&
+		{
+			erase(std::remove_if(begin(), end(), f), end());
+
+			shrink_to_fit();
+
+			return std::move(*this);
+		}
+		Array& replace(const value_type& oldValue, const value_type& newValue)
+		{
+			for (auto& v : *this)
+			{
+				if (v == oldValue)
+				{
+					v = newValue;
+				}
+			}
+
+			return *this;
+		}
+		Array replaced(const value_type& oldValue, const value_type& newValue) const&
+		{
+			Array new_array;
+
+			new_array.reserve(size());
+
+			for (const auto& v : *this)
+			{
+				if (v == oldValue)
+				{
+					new_array.push_back(newValue);
+				}
+				else
+				{
+					new_array.push_back(v);
+				}
+			}
+
+			return new_array;
+		}
+		Array replaced(const value_type& oldValue, const value_type& newValue)&&
+		{
+			replace(oldValue, newValue);
+
+			return std::move(*this);
+		}
+		template <class Fty>
+		Array& replace_if(Fty f, const value_type& newValue)
+		{
+			for (auto& v : *this)
+			{
+				if (f(v))
+				{
+					v = newValue;
+				}
+			}
+
+			return *this;
+		}
+		template <class Fty>
+		Array replaced_if(Fty f, const value_type& newValue) const&
+		{
+			Array new_array;
+
+			new_array.reserve(size());
+
+			for (const auto& v : *this)
+			{
+				if (f(v))
+				{
+					new_array.push_back(newValue);
+				}
+				else
+				{
+					new_array.push_back(v);
+				}
+			}
+
+			return new_array;
+		}
+		template <class Fty>
+		Array replaced_if(Fty f, const value_type& newValue)&&
+		{
+			replace_if(f, newValue);
+
+			return std::move(*this);
+		}
+		Array& reverse()
+		{
+			std::reverse(begin(), end());
+
+			return *this;
+		}
+		Array reversed() const&
+		{
+			return Array(rbegin(), rend());
+		}
+		Array reversed()&&
+		{
+			reverse();
+
+			return std::move(*this);
+		}
+		template <class Fty>
+		Array& reverse_each(Fty f)
+		{
+			for (auto it = rbegin(); it != rend(); ++it)
+			{
+				f(*it);
+			}
+
+			return *this;
+		}
+		template <class Fty>
+		const Array& reverse_each(Fty f) const
+		{
+			for (auto it = rbegin(); it != rend(); ++it)
+			{
+				f(*it);
+			}
+
+			return *this;
+		}
+		Array& rotate(std::ptrdiff_t count = 1)
+		{
+			if (empty())
+			{
+				;
+			}
+			else if (count > 0) // rotation to the left
+			{
+				if (static_cast<size_t>(count) > size())
+				{
+					count %= size();
+				}
+
+				std::rotate(begin(), begin() + count, end());
+			}
+			else if (count < 0) // rotation to the right
+			{
+				count = -count;
+
+				if (static_cast<size_t>(count) > size())
+				{
+					count %= size();
+				}
+
+				std::rotate(rbegin(), rbegin() + count, rend());
+			}
+
+			return *this;
+		}
+		Array rotated(const std::ptrdiff_t count = 1) const&
+		{
+			return Array(*this).rotate(count);
+		}
+		Array rotated(const std::ptrdiff_t count = 1)&&
+		{
+			rotate(count);
+
+			return std::move(*this);
+		}
+		template <class T = Type>
+		Array& rsort()
+		{
+			std::sort(begin(), end(), std::greater<>());
+			return *this;
+		}
+		template <class T = Type>
+		Array rsorted() const&
+		{
+			return Array(*this).rsort();
+		}
+		template <class T = Type>
+		Array rsorted()&&
+		{
+			rsort();
+
+			return std::move(*this);
+		}
+		Array slice(const size_t index) const
+		{
+			if (index >= size())
+			{
+				return Array();
+			}
+
+			return Array(begin() + index, end());
+		}
+		Array slice(const size_t index, const size_t length) const
+		{
+			if (index >= size())
+			{
+				return Array();
+			}
+
+			return Array(begin() + index, begin() + std::min(index + length, size()));
+		}
+		template <class T = Type>
+		Array& sort()
+		{
+			std::sort(begin(), end());
+
+			return *this;
+		}
+		template <class T = Type>
+		Array& stable_sort()
+		{
+			std::stable_sort(begin(), end());
+
+			return *this;
+		}
+		template <class Fty>
+		Array& sort_by(Fty f)
+		{
+			std::sort(begin(), end(), f);
+
+			return *this;
+		}
+		template <class Fty>
+		Array& stable_sort_by(Fty f)
+		{
+			std::stable_sort(begin(), end(), f);
+
+			return *this;
+		}
+		template <class T = Type>
+		Array sorted() const&
+		{
+			return Array(*this).sort();
+		}
+		template <class T = Type>
+		Array stable_sorted() const&
+		{
+			return Array(*this).stable_sort();
+		}
+		template <class T = Type>
+		Array sorted()&&
+		{
+			sort();
+
+			return std::move(*this);
+		}
+		template <class T = Type>
+		Array stable_sorted()&&
+		{
+			stable_sort();
+
+			return std::move(*this);
+		}
+		template <class Fty>
+		Array sorted_by(Fty f) const&
+		{
+			return Array(*this).sort_by(f);
+		}
+		template <class Fty>
+		Array stable_sorted_by(Fty f) const&
+		{
+			return Array(*this).stable_sort_by(f);
+		}
+		template <class Fty>
+		Array sorted_by(Fty f)&&
+		{
+			sort_by(f);
+
+			return std::move(*this);
+		}
+		template <class Fty>
+		Array stable_sorted_by(Fty f)&&
+		{
+			stable_sort_by(f);
+
+			return std::move(*this);
+		}
+		template <class T = Type>
+		auto sum() const
+		{
+			decltype(std::declval<T>() + std::declval<T>()) result{};
+
+			for (const auto& v : *this)
+			{
+				result += v;
+			}
+
+			return result;
+		}
+		//template <class T = Type, std::enable_if_t<Meta::HasPlus_v<T> && !Meta::HasPlusAssign_v<T>> * = nullptr>
+		//auto sum() const
+		//{
+		//	decltype(std::declval<T>() + std::declval<T>()) result{};
+
+		//	for (const auto& v : *this)
+		//	{
+		//		result = result + v;
+		//	}
+
+		//	return result;
+		//}
+		template <class T = Type, std::enable_if_t<std::is_floating_point<T>::value> * = nullptr>
+		auto sumF() const&
+		{
+			T s = 0.0;
+			T err = 0.0;
+
+			for (const auto& v : *this)
+			{
+				const T y = v - err;
+				const T t = s + y;
+				err = (t - s) - y;
+				s = t;
+			}
+
+			return static_cast<T>(s);
+		}
+		template <class T = Type, std::enable_if_t<!std::is_floating_point<T>::value> * = nullptr>
+		auto sumF() const& = delete;
+		Array take(const size_t n) const
+		{
+			return Array(begin(), begin() + std::min(n, size()));
+		}
+		template <class Fty>
+		Array take_while(Fty f) const
+		{
+			return Array(begin(), std::find_if_not(begin(), end(), f));
+		}
+		Array& unique()
+		{
+			sort();
+
+			erase(std::unique(begin(), end()), end());
+
+			return *this;
+		}
+		Array uniqued() const&
+		{
+			return Array(*this).unique();
+		}
+		Array uniqued()&&
+		{
+			sort();
+
+			erase(std::unique(begin(), end()), end());
+
+			shrink_to_fit();
+
+			return std::move(*this);
+		}
+		Array values_at(std::initializer_list<size_t> indices) const
+		{
+			Array new_array;
+
+			new_array.reserve(indices.size());
+
+			for (auto index : indices)
+			{
+				if (index >= size())
+				{
+					throw std::out_of_range("Array::values_at() index out of range");
+				}
+
+				new_array.push_back(operator[](index));
+			}
+
+			return new_array;
+		}
 	};
+
+	template <class Type, class Allocator>
+	inline bool operator ==(const Array<Type, Allocator>& a, const Array<Type, Allocator>& b)
+	{
+		return ((a.size() == b.size()) && std::equal(a.begin(), a.end(), b.begin()));
+	}
+
+	template <class Type, class Allocator>
+	inline bool operator !=(const Array<Type, Allocator>& a, const Array<Type, Allocator>& b)
+	{
+		return ((a.size() != b.size()) || !std::equal(a.begin(), a.end(), b.begin()));
+	}
+
+	template <class Type, class Allocator>
+	inline bool operator <(const Array<Type, Allocator>& a, const Array<Type, Allocator>& b)
+	{
+		return std::lexicographical_compare(a.begin(), a.end(), b.begin(), b.end());
+	}
+
+	template <class Type, class Allocator>
+	inline bool operator >(const Array<Type, Allocator>& a, const Array<Type, Allocator>& b)
+	{
+		return b < a;
+	}
+
+	template <class Type, class Allocator>
+	inline bool operator <=(const Array<Type, Allocator>& a, const Array<Type, Allocator>& b)
+	{
+		return !(b < a);
+	}
+
+	template <class Type, class Allocator>
+	inline bool operator >=(const Array<Type, Allocator>& a, const Array<Type, Allocator>& b)
+	{
+		return !(a < b);
+	}
 
 	////////////////////////////////
 	//

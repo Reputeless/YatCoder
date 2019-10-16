@@ -580,3 +580,20 @@ int main()
 	Print << result;
 }
 ```
+
+### [ABC088B - Card Game for Two](https://atcoder.jp/contests/abs/tasks/abc088_b)
+```C++
+int main()
+{
+	const int32 N = ReadInt();
+	const Array<int32> as_rsorted = ReadIntArray(N).rsort();
+	int32 alice = 0, bob = 0;
+
+	for (auto i : step(as_rsorted.size()))
+	{
+		(IsEven(i) ? alice : bob) += as_rsorted[i];
+	}
+
+	Print << (alice - bob);
+}
+```
