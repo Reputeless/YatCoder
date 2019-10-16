@@ -724,15 +724,8 @@ namespace yat
 
 		struct Print_impl
 		{
-			void operator()(const String& text) const
-			{
-				std::cout << text << '\n';
-			}
-			template <class... Args>
-			void operator()(const Args&... args) const
-			{
-				operator()(Format(args...));
-			}
+			void operator()(const String& text) const { std::cout << text << '\n'; }
+			template <class... Args> void operator()(const Args&... args) const { operator()(Format(args...)); }
 			template <class Type, class = decltype(Formatter(std::declval<FormatData&>(), std::declval<Type>()))>
 			PrintBuffer operator <<(const Type& x) const { PrintBuffer b; Formatter(*b.formatData, x); return b; }
 		};
@@ -830,9 +823,7 @@ namespace yat
 	{
 		Array<Type> as(n);
 		for (auto& a : as)
-		{
 			std::cin >> a;
-		}
 		return as;
 	}
 
@@ -1180,24 +1171,21 @@ namespace yat
 
 	namespace detail
 	{
-		template <class Fty>
-		struct FilterFunction
+		template <class Fty> struct FilterFunction
 		{
 			using isMap = std::false_type;
 			Fty function;
 			template <class T> constexpr auto operator() (const T& value) const { return function(value); }
 		};
 
-		template <class Fty>
-		struct MapFunction
+		template <class Fty> struct MapFunction
 		{
 			using isMap = std::true_type;
 			Fty function;
 			template <class T> constexpr auto operator() (const T& value) const { return function(value); }
 		};
 
-		template <class F>
-		struct IsMap : std::conditional_t<F::isMap::value, std::true_type, std::false_type> {};
+		template <class F> struct IsMap : std::conditional_t<F::isMap::value, std::true_type, std::false_type> {};
 
 		template <class Fty, class ValueType, size_t Index, class Tuple, class Next>
 		constexpr void Apply_impl(Fty f, const ValueType& value, const Tuple& tuple)
@@ -1278,34 +1266,13 @@ namespace yat
 			using functions_type = Tuple;
 			constexpr F_Step(StepClass stepClass, Tuple functions) : m_base(stepClass), m_functions(functions) {}
 			operator Array<value_type>() const { return asArray(); }
-			Array<value_type> asArray() const
-			{
-				Array<value_type> new_array;
-				each([&new_array](const auto& value) { new_array.push_back(value); });
-				return new_array;
-			}
-			size_t size() const
-			{
-				size_t sum = 0;
-				each([&sum](const auto) { ++sum; });
-				return sum;
-			}
+			Array<value_type> asArray() const { Array<value_type> new_array; each([&new_array](const auto& value) { new_array.push_back(value); }); return new_array; }
+			size_t size() const { size_t sum = 0; each([&sum](const auto) { ++sum; }); return sum; }
 			template <class Fty>
-			size_t count_if(Fty f) const
-			{
-				size_t sum = 0;
-				each([&sum, f = f](const auto& value) { sum += f(value); });
-				return sum;
-			}
+			size_t count_if(Fty f) const { size_t sum = 0; each([&sum, f = f](const auto& value) { sum += f(value); }); return sum; }
 			template <class Fty>
-			void each(Fty f) const
-			{
-				m_base.each([f, functions = m_functions](const auto& value){ Apply(f, value, functions); });
-			}
-			void evaluate() const
-			{
-				m_base.each([functions = m_functions](const auto& value){ Apply(Id, value, functions); });
-			}
+			void each(Fty f) const { m_base.each([f, functions = m_functions](const auto& value){ Apply(f, value, functions); }); }
+			void evaluate() const { m_base.each([functions = m_functions](const auto& value){ Apply(Id, value, functions); }); }
 			template <class Fty>
 			constexpr auto filter(Fty f) const
 			{
@@ -1451,39 +1418,24 @@ namespace yat
 			auto reduce1(Fty f) const
 			{
 				if (m_base.isEmpty())
-				{
 					throw std::out_of_range("F_Step::reduce1() reduce from empty range");
-				}
-
 				auto count_ = m_base.size();
 				auto value = m_base.startValue();
 				const auto step_ = m_base.step();
 				const auto functions = m_functions;
 				std::result_of_t<Fty(value_type, value_type)> result;
-
 				Apply([&result](const auto& v) { result = v; }, value, functions);
-
 				if (--count_ == 0)
-				{
 					return result;
-				}
-
 				value += step_;
-
 				for (;;)
 				{
 					Reduce(f, result, value, functions);
-
 					if (--count_)
-					{
 						value += step_;
-					}
 					else
-					{
 						break;
-					}
 				}
-
 				return result;
 			}
 
@@ -1492,32 +1444,21 @@ namespace yat
 			Array<value_type> take(size_t n) const
 			{
 				Array<value_type> new_array;
-
 				if (m_base.isEmpty() || n == 0)
-				{
 					return new_array;
-				}
-
 				auto count_ = m_base.size();
 				auto value = m_base.startValue();
 				const auto step_ = m_base.step();
 				const auto pushFunc = [&new_array](const auto& value) { new_array.push_back(value); };
 				const auto functions = m_functions;
-
 				for (;;)
 				{
 					Apply(pushFunc, value, functions);
-
 					if (--count_ && new_array.size() < n)
-					{
 						value += step_;
-					}
 					else
-					{
 						break;
-					}
 				}
-
 				return new_array;
 			}
 
@@ -1525,12 +1466,8 @@ namespace yat
 			Array<value_type> take_while(Fty f) const
 			{
 				Array<value_type> new_array;
-
 				if (m_base.isEmpty())
-				{
 					return new_array;
-				}
-
 				bool finished = false;
 				auto count_ = m_base.size();
 				auto value = m_base.startValue();
@@ -1538,30 +1475,19 @@ namespace yat
 				const auto pushFunc = [&new_array, &finished, f = f](const auto& value)
 				{
 					if (f(value))
-					{
 						new_array.push_back(value);
-					}
 					else
-					{
 						finished = true;
-					}
 				};
 				const auto functions = m_functions;
-
 				for (;;)
 				{
 					Apply(pushFunc, value, functions);
-
 					if (--count_ && !finished)
-					{
 						value += step_;
-					}
 					else
-					{
 						break;
-					}
 				}
-
 				return new_array;
 			}
 		};
