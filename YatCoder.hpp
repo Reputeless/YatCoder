@@ -109,7 +109,7 @@ namespace yat
 		const_reference at(size_t offset) const { if (offset >= m_length) throw std::out_of_range("StringView::at"); return m_ptr[offset]; }
 		constexpr const_reference front() const { return m_ptr[0]; }
 		constexpr const_reference back()  const { return m_ptr[m_length - 1]; }
-		constexpr const_pointer data()  const { return m_ptr; }
+		constexpr const_pointer data()  const noexcept { return m_ptr; }
 		constexpr size_type size() const noexcept { return m_length; }
 		constexpr size_type size_bytes() const noexcept { return m_length * sizeof(value_type); }
 		constexpr size_type length() const noexcept { return m_length; }
@@ -565,103 +565,44 @@ namespace yat
 
 			return result;
 		}
-		size_t count(const value_type& value) const
-		{
-			size_t result = 0;
-
-			for (const auto& v : *this)
-			{
-				if (v == value)
-				{
-					++result;
-				}
-			}
-
-			return result;
-		}
-		template <class Fty>
-		size_t count_if(Fty f) const
-		{
-			size_t result = 0;
-
-			for (const auto& v : *this)
-			{
-				if (f(v))
-				{
-					++result;
-				}
-			}
-
-			return result;
-		}
-		Array& drop(size_t n)
-		{
-			erase(begin(), begin() + std::min(n, size()));
-
-			return *this;
-		}
+		size_t count(const value_type& value) const { return std::count(begin(), enf(), value); }
+		template <class Fty> size_t count_if(Fty f) const { return std::count_if(begin(), enf(), f); }
+		Array& drop(size_t n) { erase(begin(), begin() + std::min(n, size())); return *this; }
 		Array dropped(const size_t n) const
 		{
 			if (n >= size())
-			{
 				return Array();
-			}
-
 			return Array(begin() + n, end());
 		}
-		template <class Fty>
-		Array dropped_while(Fty f) const
-		{
-			return Array(std::find_if_not(begin(), end(), f), end());
-		}
+		template <class Fty> Array dropped_while(Fty f) const { return Array(std::find_if_not(begin(), end(), f), end()); }
 		template <class Fty> Array& each(Fty f) { std::for_each(begin(), end(), f); return *this; }
 		template <class Fty>
-		const Array& each(Fty f) const
-		{
-			for (const auto& v : *this)
-			{
-				f(v);
-			}
-
-			return *this;
-		}
+		const Array& each(Fty f) const { std::for_each(begin(), end(), f); return *this; }
 		template <class Fty>
 		Array& each_index(Fty f)
 		{
 			size_t i = 0;
-
 			for (auto& v : *this)
-			{
 				f(i++, v);
-			}
-
 			return *this;
 		}
 		template <class Fty>
 		const Array& each_index(Fty f) const
 		{
 			size_t i = 0;
-
 			for (const auto& v : *this)
-			{
 				f(i++, v);
-			}
-
 			return *this;
 		}
 		const value_type& fetch(const size_t index, const value_type& defaultValue) const
 		{
 			if (index >= size())
-			{
 				return defaultValue;
-			}
-
 			return operator[](index);
 		}
 		Array& fill(const value_type& value)
 		{
 			std::fill(begin(), end(), value);
-
 			return *this;
 		}
 		template <class Fty>
