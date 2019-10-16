@@ -564,7 +564,12 @@ int main()
 
 	for (auto n : Range(1, N))
 	{
-		const int32 t = (n / 10000 % 10) + (n / 1000 % 10) + (n / 100 % 10) + (n / 10 % 10) + (n % 10);
+		int32 t = 0;
+
+		for (auto i : Range(0, 4))
+		{
+			t += GetDigit(n, i);
+		}
 
 		if (InRange(t, A, B))
 		{

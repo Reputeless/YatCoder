@@ -1540,7 +1540,7 @@ namespace yat
 	}
 
 	// 整数の (1 + N) 桁目の数を返す
-	template <class Integer> int32 GetDigitValue(Integer n, size_t index) noexcept { return static_cast<int32>((n / PowerOf10<Integer>(index)) % 10); }
+	template <class Integer> int32 GetDigit(Integer n, size_t index) noexcept { return static_cast<int32>((n / PowerOf10<Integer>(index)) % 10); }
 }
 
 namespace std
