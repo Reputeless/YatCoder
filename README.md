@@ -166,7 +166,7 @@ int main()
 	Print << 123.45678;
 }
 ```
-出力:
+出力
 ```
 12345
 10abc5
@@ -185,6 +185,46 @@ true
 
 
 ## 8. 便利関数
+
+### `IsOdd`
+`()` 演算子で渡した整数が奇数なら `true` を返します。
+
+```C++
+# include <YatCoder.hpp>
+
+int main()
+{
+	Print << IsOdd(3);
+	Print << IsOdd(-3);
+	Print << IsOdd(24);
+}
+```
+出力
+```
+true
+true
+false
+```
+
+### `IsEven`
+`()` 演算子で渡した整数が偶数なら `true` を返します。
+
+```C++
+# include <YatCoder.hpp>
+
+int main()
+{
+	Print << IsEven(2);
+	Print << IsEven(-2);
+	Print << IsEven(25);
+}
+```
+出力
+```
+true
+true
+false
+```
 
 🚧🚧🚧
 
