@@ -256,8 +256,57 @@ int main()
 
 ### 7.3 文字の読み込み
 
-🚧🚧🚧
+### `char ReadChar();`
+### `bool ReadChar(char& c);`
+標準入力から文字を 1 つ読み込み、その文字を返します。空白や改行の場合、無視して次の空白や改行でない文字を読み込みます。
 
+```C++
+int main()
+{
+	const char a = ReadChar();
+	const char b = ReadChar();
+	const char c = ReadChar();
+	Print << a;
+	Print << b;
+	Print << c;
+}
+```
+入力
+```
+N Y Y
+```
+出力
+```
+N
+Y
+Y
+```
+
+### `char ReadCodePoint();`
+### `bool ReadCodePoint(char& c);`
+標準入力から文字を 1 つ読み込み、その文字を返します。空白や改行も 1 文字として扱います。
+
+```C++
+int main()
+{
+	const char a = ReadCodePoint();
+	const char b = ReadCodePoint();
+	const char c = ReadCodePoint();
+	Print << a;
+	Print << b;
+	Print << c;
+}
+```
+入力
+```
+# #
+```
+出力
+```
+#
+
+#
+```
 
 ### 7.4 文字列の読み込み
 
