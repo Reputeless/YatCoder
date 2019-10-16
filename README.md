@@ -597,3 +597,12 @@ int main()
 	Print << (alice - bob);
 }
 ```
+
+### [ABC085B - Kagami Mochi](https://atcoder.jp/contests/abs/tasks/abc085_b)
+```C++
+int main()
+{
+	const int32 N = ReadInt();
+	Print << ReadIntArray(N).unique().size();
+}
+```
