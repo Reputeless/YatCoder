@@ -896,70 +896,260 @@ namespace yat
 		constexpr S step() const noexcept { return m_start_iterator.step(); }
 		constexpr bool isEmpty() const noexcept { return size() == 0; }
 		operator Array<value_type>() const { return asArray(); }
-		Array<value_type> asArray() const;
-		template <class Fty> constexpr N count_if(Fty f) const;
-		template <class Fty> void each(Fty f) const;
-		template <class Fty> void each_index(Fty f) const;
+		Array<value_type> asArray() const
+		{
+			Array<value_type> new_array;
+			if (isEmpty())
+				return new_array;
+			new_array.reserve(static_cast<size_t>(size()));
+			auto count_ = size();
+			auto value = startValue();
+			const auto step_ = step();
+			for (;;)
+			{
+				new_array.push_back(value);
+				if (--count_)
+					value += step_;
+				else
+					break;
+			}
+			return new_array;
+		}
+		template <class Fty> constexpr N count_if(Fty f) const
+		{
+			if (isEmpty())
+				return 0;
+			N result = 0;
+			auto count_ = size();
+			auto value = startValue();
+			const auto step_ = step();
+			for (;;)
+			{
+				if (f(value))
+					++result;
+				if (--count_)
+					value += step_;
+				else
+					break;
+			}
+			return result;
+		}
+		template <class Fty> void each(Fty f) const
+		{
+			if (isEmpty())
+				return;
+			auto count_ = size();
+			auto value = startValue();
+			const auto step_ = step();
+			for (;;)
+			{
+				f(value);
+				if (--count_)
+					value += step_;
+				else
+					break;
+			}
+		}
+		template <class Fty> void each_index(Fty f) const
+		{
+			if (isEmpty())
+				return;
+			auto count_ = size();
+			auto value = startValue();
+			const auto step_ = step();
+			size_t index = 0;
+			for (;;)
+			{
+				f(index++, value);
+				if (--count_)
+					value += step_;
+				else
+					break;
+			}
+		}
 		template <class Fty> constexpr auto filter(Fty f) const;
-		constexpr bool include(const value_type& x) const;
-		template <class Fty> constexpr bool include_if(Fty f) const;
-		String join(StringView sep = U", ", StringView begin = U"{", StringView end = U"}") const;
+		constexpr bool include(const value_type& x) const
+		{
+			if (isEmpty())
+				return false;
+			auto count_ = size();
+			auto value = startValue();
+			const auto step_ = step();
+			for (;;)
+			{
+				if (x == value)
+					return true;
+				if (--count_)
+					value += step_;
+				else
+					break;
+			}
+			return false;
+		}
+		template <class Fty> constexpr bool include_if(Fty f) const
+		{
+			if (isEmpty())
+				return false;
+			auto count_ = size();
+			auto value = startValue();
+			const auto step_ = step();
+			for (;;)
+			{
+				if (f(value))
+					return true;
+				if (--count_)
+					value += step_;
+				else
+					break;
+			}
+			return false;
+		}
+		String join(StringView sep = U", ", StringView begin = U"{", StringView end = U"}") const
+		{
+			String s;
+			s.append(begin);
+			if (isEmpty())
+			{
+				s.append(end);
+				return s;
+			}
+			bool isFirst = true;
+			auto count_ = size();
+			auto value = startValue();
+			const auto step_ = step();
+			for (;;)
+			{
+				if (isFirst)
+					isFirst = false;
+				else
+					s.append(sep);
+				s.append(Format(value));
+				if (--count_)
+					value += step_;
+				else
+					break;
+			}
+			s.append(end);
+			return s;
+		}
 		template <class Fty> constexpr auto map(Fty f) const;
-		template <class Fty, class R = std::decay_t<std::result_of_t<Fty(T, T)>>> constexpr auto reduce(Fty f, R init) const;
-		template <class Fty> constexpr auto reduce1(Fty f) const;
-		constexpr auto sum() const;
-		Array<value_type> take(size_t n) const;
-		template <class Fty> Array<value_type> take_while(Fty f) const;
+		template <class Fty, class R = std::decay_t<std::result_of_t<Fty(T, T)>>> constexpr auto reduce(Fty f, R init) const
+		{
+			if (isEmpty())
+				return init;
+			auto count_ = size();
+			auto value = startValue();
+			const auto step_ = step();
+			for (;;)
+			{
+				init = f(init, value);
+				if (--count_)
+					value += step_;
+				else
+					return init;
+			}
+		}
+		template <class Fty> constexpr auto reduce1(Fty f) const
+		{
+			if (isEmpty())
+				throw std::out_of_range("Step::reduce1() reduce from empty range");
+			auto count_ = size();
+			auto value = startValue();
+			const auto step_ = step();
+			std::result_of_t<Fty(value_type, value_type)> result = value;
+			for (;;)
+			{
+				if (--count_)
+					value += step_;
+				else
+					break;
+				result = f(result, value);
+			}
+			return result;
+		}
+		constexpr auto sum() const
+		{
+			using result_type = decltype(std::declval<T>() + std::declval<S>());
+			if (std::is_scalar<result_type>::value)
+			{
+				const auto n = size();
+				const auto a = startValue();
+				const auto d = step();
+				return static_cast<result_type>(n * (2 * a + (n - 1) * d) / 2);
+			}
+			else
+				return reduce(Plus<result_type>(), result_type{});
+		}
+		Array<value_type> take(size_t n) const
+		{
+			Array<value_type> new_array;
+			if (isEmpty() || n == 0)
+				return new_array;
+			auto count_ = size();
+			auto value = startValue();
+			const auto step_ = step();
+			for (;;)
+			{
+				new_array.push_back(value);
+				if (--count_ && new_array.size() < n)
+					value += step_;
+				else
+					break;
+			}
+			return new_array;
+		}
+		template <class Fty> Array<value_type> take_while(Fty f) const
+		{
+			Array<value_type> new_array;
+			if (isEmpty())
+				return new_array;
+			auto count_ = size();
+			auto value = startValue();
+			const auto step_ = step();
+			for (;;)
+			{
+				if (f(value))
+					new_array.push_back(value);
+				else
+					break;
+				if (--count_)
+					value += step_;
+				else
+					break;
+			}
+			return new_array;
+		}
 	private:
 		iterator m_end_iterator;
 		iterator m_start_iterator;
 	};
 
 	template <class T, class N, class S = int32, std::enable_if_t<std::is_integral<N>::value> * = nullptr>
-	inline constexpr auto step(T a, N n, S s = 1)
-	{
-		return Step<decltype(a + s), N, S>(a, n, s);
-	}
+	inline constexpr auto step(T a, N n, S s = 1) { return Step<decltype(a + s), N, S>(a, n, s); }
 
 	template <class N, std::enable_if_t<std::is_integral<N>::value> * = nullptr>
-	inline constexpr auto step(N n)
-	{
-		return Step<N, N, int32>(N(0), n, 1);
-	}
+	inline constexpr auto step(N n) { return Step<N, N, int32>(N(0), n, 1); }
 
 	template <class N, std::enable_if_t<std::is_integral<N>::value> * = nullptr>
-	inline constexpr auto step_backward(N n)
-	{
-		return Step<N, N, int32>(n + int32(-1), n, int32(-1));
-	}
+	inline constexpr auto step_backward(N n) { return Step<N, N, int32>(n + int32(-1), n, int32(-1)); }
 
 	template <class T, class U, class S = int32, class StartType = std::common_type_t<T, U>, class CounterType = std::common_type_t<std::size_t, StartType>, std::enable_if_t<std::is_integral<StartType>::value> * = nullptr>
 	inline constexpr auto step_to(T a, U b, S s = 1)
 	{
 		CounterType  n = 0;
 		using DiffType = std::common_type_t<int64, StartType>;
-
 		if (s == 0 || (b != a && (b < a) != (s < 0)))
-		{
 			n = 0;
-		}
 		else
 		{
 			S abs_s = s > 0 ? s : -s;
 			CounterType diff = b > a ? DiffType(b) - DiffType(a) : DiffType(a) - DiffType(b);
-
 			if (abs_s == 1)
-			{
 				n = diff;
-			}
 			else
-			{
 				n = diff / abs_s;
-			}
-
 			n++;
 		}
-
 		return Step<StartType, CounterType, S>(a, n, s);
 	}
 
@@ -968,40 +1158,25 @@ namespace yat
 	{
 		CounterType n;
 		using DiffType = std::common_type_t<int64, StartType>;
-
 		if (b == a || s == 0 || (b < a) != (s < 0))
-		{
 			n = 0;
-		}
 		else
 		{
 			S abs_s = s > 0 ? s : -s;
 			CounterType diff = b > a ? DiffType(b) - DiffType(a) : DiffType(a) - DiffType(b);
-
 			if (abs_s == 1)
-			{
 				n = diff;
-			}
 			else
-			{
 				n = diff / abs_s;
-			}
-
 			CounterType finish = a + n * s;
 			if (finish != static_cast<CounterType>(b))
-			{
 				n++;
-			}
 		}
-
 		return Step<StartType, CounterType, S>(a, n, s);
 	}
 
 	template<class T, class U, class S = int32, class StartType = std::common_type_t<T, U>, class CounterType = std::common_type_t<std::size_t, StartType>, std::enable_if_t<std::is_integral<StartType>::value> * = nullptr>
-	inline constexpr auto Range(T beg, U end, S step = 1)
-	{
-		return step_to(beg, end, step);
-	}
+	inline constexpr auto Range(T beg, U end, S step = 1) { return step_to(beg, end, step); }
 
 	namespace detail
 	{
@@ -1030,29 +1205,21 @@ namespace yat
 			if (IsMap<Next>::value)
 			{
 				if (Index + 1 == std::tuple_size<Tuple>::value)
-				{
 					f(std::get<Index>(tuple)(value));
-				}
 				else
-				{
 					Apply_impl<Fty, decltype(std::get<Index>(tuple)(value)), Index + 1, Tuple, std::decay_t<decltype(std::get<Index + 1>(std::declval<Tuple>()))>>(f, std::get<Index>(tuple)(value), tuple);
-				}
 			}
 			else
 			{
 				if (Index + 1 == std::tuple_size<Tuple>::value)
 				{
 					if (std::get<Index>(tuple)(value))
-					{
 						f(value);
-					}
 				}
 				else
 				{
 					if (std::get<Index>(tuple)(value))
-					{
 						Apply_impl<Fty, ValueType, Index + 1, Tuple, std::decay_t<decltype(std::get<Index + 1>(std::declval<Tuple>()))>>(f, value, tuple);
-					}
 				}
 			}
 		}
@@ -1133,17 +1300,11 @@ namespace yat
 			template <class Fty>
 			void each(Fty f) const
 			{
-				m_base.each([f, functions = m_functions](const auto& value)
-					{
-						Apply(f, value, functions);
-					});
+				m_base.each([f, functions = m_functions](const auto& value){ Apply(f, value, functions); });
 			}
 			void evaluate() const
 			{
-				m_base.each([functions = m_functions](const auto& value)
-					{
-						Apply(Id, value, functions);
-					});
+				m_base.each([functions = m_functions](const auto& value){ Apply(Id, value, functions); });
 			}
 			template <class Fty>
 			constexpr auto filter(Fty f) const
@@ -1224,7 +1385,7 @@ namespace yat
 				return false;
 			}
 
-			String join(const StringView sep = U", ", const StringView begin = U"{", const StringView end = U"}") const
+			String join(StringView sep = U", ", StringView begin = U"{", StringView end = U"}") const
 			{
 				String s;
 				s.append(begin);
@@ -1326,11 +1487,7 @@ namespace yat
 				return result;
 			}
 
-			template <class Type = value_type>
-			Type sum() const
-			{
-				return reduce(Plus<Type>(), Type{});
-			}
+			template <class Type = value_type> Type sum() const { return reduce(Plus<Type>(), Type{}); }
 
 			Array<value_type> take(size_t n) const
 			{
@@ -1409,252 +1566,13 @@ namespace yat
 			}
 		};
 	}
-
-	template <class T, class N, class S>
-	inline Array<typename Step<T, N, S>::value_type> Step<T, N, S>::asArray() const
-	{
-		Array<value_type> new_array;
-
-		if (isEmpty())
-		{
-			return new_array;
-		}
-
-		new_array.reserve(static_cast<size_t>(size()));
-		auto count_ = size();
-		auto value = startValue();
-		const auto step_ = step();
-
-		for (;;)
-		{
-			new_array.push_back(value);
-
-			if (--count_)
-			{
-				value += step_;
-			}
-			else
-			{
-				break;
-			}
-		}
-
-		return new_array;
-	}
-
-	template <class T, class N, class S>
-	template <class Fty>
-	inline constexpr N Step<T, N, S>::count_if(Fty f) const
-	{
-		if (isEmpty())
-		{
-			return 0;
-		}
-
-		N result = 0;
-		auto count_ = size();
-		auto value = startValue();
-		const auto step_ = step();
-
-		for (;;)
-		{
-			if (f(value))
-			{
-				++result;
-			}
-
-			if (--count_)
-			{
-				value += step_;
-			}
-			else
-			{
-				break;
-			}
-		}
-
-		return result;
-	}
-
-	template <class T, class N, class S>
-	template <class Fty>
-	inline void Step<T, N, S>::each(Fty f) const
-	{
-		if (isEmpty())
-		{
-			return;
-		}
-
-		auto count_ = size();
-		auto value = startValue();
-		const auto step_ = step();
-
-		for (;;)
-		{
-			f(value);
-
-			if (--count_)
-			{
-				value += step_;
-			}
-			else
-			{
-				break;
-			}
-		}
-	}
-
-	template <class T, class N, class S>
-	template <class Fty>
-	inline void Step<T, N, S>::each_index(Fty f) const
-	{
-		if (isEmpty())
-		{
-			return;
-		}
-
-		auto count_ = size();
-		auto value = startValue();
-		const auto step_ = step();
-		size_t index = 0;
-
-		for (;;)
-		{
-			f(index++, value);
-
-			if (--count_)
-			{
-				value += step_;
-			}
-			else
-			{
-				break;
-			}
-		}
-	}
-
-	template <class T, class N, class S>
-	template <class Fty>
+	template <class T, class N, class S> template <class Fty>
 	inline constexpr auto Step<T, N, S>::filter(Fty f) const
 	{
 		const auto tuple = std::make_tuple(detail::FilterFunction<Fty>{ f });
 		return detail::F_Step<Step, value_type, decltype(tuple)>(*this, tuple);
 	}
-
-	template <class T, class N, class S>
-	constexpr bool Step<T, N, S>::include(const value_type& x) const
-	{
-		if (isEmpty())
-		{
-			return false;
-		}
-
-		auto count_ = size();
-		auto value = startValue();
-		const auto step_ = step();
-
-		for (;;)
-		{
-			if (x == value)
-			{
-				return true;
-			}
-
-			if (--count_)
-			{
-				value += step_;
-			}
-			else
-			{
-				break;
-			}
-		}
-
-		return false;
-	}
-
-	template <class T, class N, class S>
-	template <class Fty>
-	constexpr bool Step<T, N, S>::include_if(Fty f) const
-	{
-		if (isEmpty())
-		{
-			return false;
-		}
-
-		auto count_ = size();
-		auto value = startValue();
-		const auto step_ = step();
-
-		for (;;)
-		{
-			if (f(value))
-			{
-				return true;
-			}
-
-			if (--count_)
-			{
-				value += step_;
-			}
-			else
-			{
-				break;
-			}
-		}
-
-		return false;
-	}
-
-	template <class T, class N, class S>
-	String Step<T, N, S>::join(const StringView sep, const StringView begin, const StringView end) const
-	{
-		String s;
-
-		s.append(begin);
-
-		if (isEmpty())
-		{
-			s.append(end);
-
-			return s;
-		}
-
-		bool isFirst = true;
-		auto count_ = size();
-		auto value = startValue();
-		const auto step_ = step();
-
-		for (;;)
-		{
-			if (isFirst)
-			{
-				isFirst = false;
-			}
-			else
-			{
-				s.append(sep);
-			}
-
-			s.append(Format(value));
-
-			if (--count_)
-			{
-				value += step_;
-			}
-			else
-			{
-				break;
-			}
-		}
-
-		s.append(end);
-
-		return s;
-	}
-
-	template <class T, class N, class S>
-	template <class Fty>
+	template <class T, class N, class S> template <class Fty>
 	inline constexpr auto Step<T, N, S>::map(Fty f) const
 	{
 		using Ret = std::decay_t<std::result_of_t<Fty(value_type)>>;
@@ -1662,164 +1580,8 @@ namespace yat
 		return detail::F_Step<Step, Ret, decltype(tuple)>(*this, tuple);
 	}
 
-	template <class T, class N, class S>
-	template <class Fty, class R>
-	constexpr auto Step<T, N, S>::reduce(Fty f, R init) const
-	{
-		if (isEmpty())
-		{
-			return init;
-		}
-
-		auto count_ = size();
-		auto value = startValue();
-		const auto step_ = step();
-
-		for (;;)
-		{
-			init = f(init, value);
-
-			if (--count_)
-			{
-				value += step_;
-			}
-			else
-			{
-				return init;
-			}
-		}
-	}
-
-	template <class T, class N, class S>
-	template <class Fty>
-	constexpr auto Step<T, N, S>::reduce1(Fty f) const
-	{
-		if (isEmpty())
-		{
-			throw std::out_of_range("Step::reduce1() reduce from empty range");
-		}
-
-		auto count_ = size();
-		auto value = startValue();
-		const auto step_ = step();
-		std::result_of_t<Fty(value_type, value_type)> result = value;
-
-		for (;;)
-		{
-			if (--count_)
-			{
-				value += step_;
-			}
-			else
-			{
-				break;
-			}
-
-			result = f(result, value);
-		}
-
-		return result;
-	}
-
-	template <class T, class N, class S>
-	constexpr auto Step<T, N, S>::sum() const
-	{
-		using result_type = decltype(std::declval<T>() + std::declval<S>());
-
-		if (std::is_scalar<result_type>::value)
-		{
-			const auto n = size();
-			const auto a = startValue();
-			const auto d = step();
-			return static_cast<result_type>(n * (2 * a + (n - 1) * d) / 2);
-		}
-		else
-		{
-			return reduce(Plus<result_type>(), result_type{});
-		}
-	}
-
-	template <class T, class N, class S>
-	Array<typename Step<T, N, S>::value_type> Step<T, N, S>::take(size_t n) const
-	{
-		Array<value_type> new_array;
-
-		if (isEmpty() || n == 0)
-		{
-			return new_array;
-		}
-
-		auto count_ = size();
-		auto value = startValue();
-		const auto step_ = step();
-
-		for (;;)
-		{
-			new_array.push_back(value);
-
-			if (--count_ && new_array.size() < n)
-			{
-				value += step_;
-			}
-			else
-			{
-				break;
-			}
-		}
-
-		return new_array;
-	}
-
-	template <class T, class N, class S>
-	template <class Fty>
-	Array<typename Step<T, N, S>::value_type> Step<T, N, S>::take_while(Fty f) const
-	{
-		Array<value_type> new_array;
-
-		if (isEmpty())
-		{
-			return new_array;
-		}
-
-		auto count_ = size();
-		auto value = startValue();
-		const auto step_ = step();
-
-		for (;;)
-		{
-			if (f(value))
-			{
-				new_array.push_back(value);
-			}
-			else
-			{
-				break;
-			}
-
-			if (--count_)
-			{
-				value += step_;
-			}
-			else
-			{
-				break;
-			}
-		}
-
-		return new_array;
-	}
-
-	template <class T, class N, class S>
-	inline void Formatter(FormatData& f, const Step<T, N, S>& s)
-	{
-		Formatter(f, s.join());
-	}
-
-	template <class StepClass, class ValueType, class Tuple>
-	inline void Formatter(FormatData& f, const detail::F_Step<StepClass, ValueType, Tuple>& s)
-	{
-		Formatter(f, s.join());
-	}
+	template <class T, class N, class S> inline void Formatter(FormatData& f, const Step<T, N, S>& s) { Formatter(f, s.join()); }
+	template <class StepClass, class ValueType, class Tuple> inline void Formatter(FormatData& f, const detail::F_Step<StepClass, ValueType, Tuple>& s) { Formatter(f, s.join()); }
 
 	////////////////////////////////
 	//
@@ -1834,11 +1596,7 @@ namespace yat
 	}
 
 	// x が min 以上 max 以下である場合に `true` を返す
-	template <class Type>
-	inline constexpr bool InRange(const Type& x, const Type& min, const Type& max)
-	{
-		return (min <= x) && (x <= max);
-	}
+	template <class Type> inline constexpr bool InRange(const Type& x, const Type& min, const Type& max) { return (min <= x) && (x <= max); }
 
 	// 奇数の場合に `true` を返す
 	constexpr auto IsOdd = detail::Odd_impl();
@@ -1847,23 +1605,16 @@ namespace yat
 	constexpr auto IsEven = detail::Even_impl();
 
 	// 10 の n 乗を整数型で返す
-	template <class Integer>
-	inline constexpr Integer PowerOf10(size_t n) noexcept
+	template <class Integer> inline constexpr Integer PowerOf10(size_t n) noexcept
 	{
 		Integer x = 1;
 		for (size_t i = 0; i < n; ++i)
-		{
 			x *= 10;
-		}
 		return x;
 	}
 
 	// 整数の (1 + N) 桁目の数を返す
-	template <class Integer>
-	int32 GetDigitValue(Integer n, size_t index) noexcept
-	{
-		return static_cast<int32>((n / PowerOf10<Integer>(index)) % 10);
-	}
+	template <class Integer> int32 GetDigitValue(Integer n, size_t index) noexcept { return static_cast<int32>((n / PowerOf10<Integer>(index)) % 10); }
 }
 
 namespace std
