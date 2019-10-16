@@ -553,3 +553,25 @@ int main()
 	Print << result;
 }
 ```
+
+### [ABC083B - Some Sums](https://atcoder.jp/contests/abs/tasks/abc083_b)
+```C++
+int main()
+{
+	const int32 N = ReadInt();
+	const int32 A = ReadInt(), B = ReadInt();
+	int32 result = 0;
+
+	for (auto n : Range(1, N))
+	{
+		const int32 t = (n / 10000 % 10) + (n / 1000 % 10) + (n / 100 % 10) + (n / 10 % 10) + (n % 10);
+
+		if (InRange(t, A, B))
+		{
+			result += n;
+		}
+	}
+
+	Print << result;
+}
+```
