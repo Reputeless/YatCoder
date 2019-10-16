@@ -484,8 +484,8 @@ false
 ```C++
 int main()
 {
-	const int32 a = ReadInt();
-	const int32 b = ReadInt(), c = ReadInt();
+	const int a = ReadInt();
+	const int b = ReadInt(), c = ReadInt();
 	const String s = ReadLine();
 	Print << (a + b + c) << ' ' << s;
 }
@@ -495,7 +495,7 @@ int main()
 ```C++
 int main()
 {
-	const int32 a = ReadInt(), b = ReadInt();
+	const int a = ReadInt(), b = ReadInt();
 	Print << (IsEven(a * b) ? "Even" : "Odd");
 }
 ```
@@ -512,13 +512,13 @@ int main()
 ```C++
 int main()
 {
-	const int32 N = ReadInt();
-	Array<int32> as = ReadIntArray(N);
-	int32 result = 0;
+	const int N = ReadInt();
+	Array<int> as = ReadIntArray(N);
+	int result = 0;
 
 	while (as.all(IsEven))
 	{
-		as.each([](int32& a) { a /= 2; });
+		as.each([](int& a) { a /= 2; });
 		++result;
 	}
 
@@ -530,9 +530,9 @@ int main()
 ```C++
 int main()
 {
-	const int32 N500 = ReadInt(), N100 = ReadInt(), N50 = ReadInt();
-	const int32 X = ReadInt();
-	int32 result = 0;
+	const int N500 = ReadInt(), N100 = ReadInt(), N50 = ReadInt();
+	const int X = ReadInt();
+	int result = 0;
 
 	for (auto n500 : Range(0, N500))
 	{
@@ -540,7 +540,7 @@ int main()
 		{
 			for (auto n50 : Range(0, N50))
 			{
-				const int32 sum = (n500 * 500) + (n100 * 100) + (n50 * 50);
+				const int sum = (n500 * 500) + (n100 * 100) + (n50 * 50);
 				result += (sum == X);
 			}
 		}
