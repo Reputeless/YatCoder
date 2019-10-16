@@ -138,12 +138,12 @@ namespace yat
 			return cmp != 0 ? cmp : (m_length == str.m_length ? 0 : m_length < str.m_length ? -1 : 1);
 		}
 	};
-	inline bool operator ==(const StringView x, const StringView y) noexcept { return x.compare(y) == 0; }
-	inline bool operator !=(const StringView x, const StringView y) noexcept { return !(x == y); }
-	inline bool operator <(const StringView x, const StringView y) noexcept { return x.compare(y) < 0; }
-	inline bool operator >(const StringView x, const StringView y) noexcept { return x.compare(y) > 0; }
-	inline bool operator <=(const StringView x, const StringView y) noexcept { return x.compare(y) <= 0; }
-	inline bool operator >=(const StringView x, const StringView y) noexcept { return x.compare(y) >= 0; }
+	inline bool operator ==(const StringView a, const StringView b) noexcept { return a.compare(b) == 0; }
+	inline bool operator !=(const StringView a, const StringView b) noexcept { return !(a == b); }
+	inline bool operator <(const StringView a, const StringView b) noexcept { return a.compare(b) < 0; }
+	inline bool operator >(const StringView a, const StringView b) noexcept { return a.compare(b) > 0; }
+	inline bool operator <=(const StringView a, const StringView b) noexcept { return a.compare(b) <= 0; }
+	inline bool operator >=(const StringView a, const StringView b) noexcept { return a.compare(b) >= 0; }
 
 	//	文字列型
 	class String
@@ -321,137 +321,137 @@ namespace yat
 		}
 	};
 	template <class StringViewIsh, class = String::IsStringViewIsh<StringViewIsh>>
-	inline String operator +(const String::value_type lhs, const StringViewIsh& rhs)
+	inline String operator +(const String::value_type a, const StringViewIsh& b)
 	{
 		String result;
-		result.reserve(1 + rhs.size());
-		result.append(lhs);
-		result.append(rhs);
+		result.reserve(1 + b.size());
+		result.append(a);
+		result.append(b);
 		return result;
 	}
-	String operator +(const String::value_type lhs, const String& rhs)
+	String operator +(const String::value_type a, const String& b)
 	{
 		String result;
-		result.reserve(1 + rhs.size());
-		result.append(lhs);
-		result.append(rhs);
+		result.reserve(1 + b.size());
+		result.append(a);
+		result.append(b);
 		return result;
 	}
-	String operator +(const String::value_type lhs, String&& rhs) { rhs.push_front(lhs); return std::move(rhs); }
+	String operator +(const String::value_type a, String&& b) { b.push_front(a); return std::move(b); }
 	template <class StringViewIsh, class = String::IsStringViewIsh<StringViewIsh>>
-	inline String operator +(const String::value_type* lhs, const StringViewIsh& rhs)
+	inline String operator +(const String::value_type* a, const StringViewIsh& b)
 	{
-		const size_t len = std::char_traits<String::value_type>::length(lhs);
+		const size_t len = std::char_traits<String::value_type>::length(a);
 		String result;
-		result.reserve(len + rhs.size());
-		result.append(lhs, len);
-		result.append(rhs);
+		result.reserve(len + b.size());
+		result.append(a, len);
+		result.append(b);
 		return result;
 	}
-	String operator +(const String::value_type* lhs, const String& rhs)
+	String operator +(const String::value_type* a, const String& b)
 	{
-		const size_t len = std::char_traits<String::value_type>::length(lhs);
+		const size_t len = std::char_traits<String::value_type>::length(a);
 		String result;
-		result.reserve(len + rhs.size());
-		result.append(lhs, len);
-		result.append(rhs);
+		result.reserve(len + b.size());
+		result.append(a, len);
+		result.append(b);
 		return result;
 	}
-	String operator +(const String::value_type* lhs, String&& rhs) { return std::move(rhs.insert(0, lhs)); }
+	String operator +(const String::value_type* a, String&& b) { return std::move(b.insert(0, a)); }
 	template <class StringViewIsh, class = String::IsStringViewIsh<StringViewIsh>>
-	inline String operator +(const StringViewIsh& lhs, const String::value_type rhs)
+	inline String operator +(const StringViewIsh& a, const String::value_type b)
 	{
 		String result;
-		result.reserve(lhs.size() + 1);
-		result.append(lhs);
-		result.append(rhs);
+		result.reserve(a.size() + 1);
+		result.append(a);
+		result.append(b);
 		return result;
 	}
 	template <class StringViewIsh, class = String::IsStringViewIsh<StringViewIsh>>
-	inline String operator +(const StringViewIsh& lhs, const String::value_type* rhs)
+	inline String operator +(const StringViewIsh& a, const String::value_type* b)
 	{
-		const size_t len = std::char_traits<String::value_type>::length(rhs);
+		const size_t len = std::char_traits<String::value_type>::length(b);
 		String result;
-		result.reserve(lhs.size() + len);
-		result.append(lhs);
-		result.append(rhs, len);
+		result.reserve(a.size() + len);
+		result.append(a);
+		result.append(b, len);
 		return result;
 	}
 	template <class StringViewIshT, class StringViewIshU, class = String::IsStringViewIsh<StringViewIshT>, class = String::IsStringViewIsh<StringViewIshU>>
-	inline String operator +(const StringViewIshT& lhs, const StringViewIshU& rhs)
+	inline String operator +(const StringViewIshT& a, const StringViewIshU& b)
 	{
 		String result;
-		result.reserve(lhs.size() + rhs.size());
-		result.append(lhs);
-		result.append(rhs);
+		result.reserve(a.size() + b.size());
+		result.append(a);
+		result.append(b);
 		return result;
 	}
 	template <class StringViewIsh, class = String::IsStringViewIsh<StringViewIsh>>
-	inline String operator +(const StringViewIsh& lhs, const String& rhs)
+	inline String operator +(const StringViewIsh& a, const String& b)
 	{
 		String result;
-		result.reserve(lhs.size() + rhs.size());
-		result.append(lhs);
-		result.append(rhs);
+		result.reserve(a.size() + b.size());
+		result.append(a);
+		result.append(b);
 		return result;
 	}
-	template <class StringViewIsh, class = String::IsStringViewIsh<StringViewIsh>> inline String operator +(const StringViewIsh& lhs, String&& rhs) { return std::move(rhs.insert(0, lhs)); }
-	String operator +(const String& lhs, const String::value_type rhs)
+	template <class StringViewIsh, class = String::IsStringViewIsh<StringViewIsh>> inline String operator +(const StringViewIsh& a, String&& b) { return std::move(b.insert(0, a)); }
+	String operator +(const String& a, const String::value_type b)
 	{
 		String result;
-		result.reserve(lhs.size() + 1);
-		result.append(lhs);
-		result.append(rhs);
+		result.reserve(a.size() + 1);
+		result.append(a);
+		result.append(b);
 		return result;
 	}
-	String operator +(const String& lhs, const String::value_type* rhs)
+	String operator +(const String& a, const String::value_type* b)
 	{
-		const size_t len = std::char_traits<String::value_type>::length(rhs);
+		const size_t len = std::char_traits<String::value_type>::length(b);
 		String result;
-		result.reserve(lhs.size() + len);
-		result.append(lhs);
-		result.append(rhs, len);
+		result.reserve(a.size() + len);
+		result.append(a);
+		result.append(b, len);
 		return result;
 	}
 	template <class StringViewIsh, class = String::IsStringViewIsh<StringViewIsh>>
-	inline String operator +(const String& lhs, const StringViewIsh& rhs)
+	inline String operator +(const String& a, const StringViewIsh& b)
 	{
 		String result;
-		result.reserve(lhs.size() + rhs.size());
-		result.append(lhs);
-		result.append(rhs);
+		result.reserve(a.size() + b.size());
+		result.append(a);
+		result.append(b);
 		return result;
 	}
-	String operator +(const String& lhs, const String& rhs)
+	String operator +(const String& a, const String& b)
 	{
 		String result;
-		result.reserve(lhs.size() + rhs.size());
-		result.append(lhs);
-		result.append(rhs);
+		result.reserve(a.size() + b.size());
+		result.append(a);
+		result.append(b);
 		return result;
 	}
-	String operator +(const String& lhs, String&& rhs) { return std::move(rhs.insert(0, lhs)); }
-	String operator +(String&& lhs, const String::value_type rhs) { return std::move(lhs << rhs); }
-	String operator +(String&& lhs, const String::value_type* rhs) { return std::move(lhs.append(rhs)); }
-	template <class StringViewIsh, class = String::IsStringViewIsh<StringViewIsh>> inline String operator +(String&& lhs, const StringViewIsh& rhs) { return std::move(lhs.append(rhs)); }
-	String operator +(String&& lhs, const String& rhs) { return std::move(lhs.append(rhs)); }
-	String operator +(String&& lhs, String&& rhs)
+	String operator +(const String& a, String&& b) { return std::move(b.insert(0, a)); }
+	String operator +(String&& a, const String::value_type b) { return std::move(a << b); }
+	String operator +(String&& a, const String::value_type* b) { return std::move(a.append(b)); }
+	template <class StringViewIsh, class = String::IsStringViewIsh<StringViewIsh>> inline String operator +(String&& a, const StringViewIsh& b) { return std::move(a.append(b)); }
+	String operator +(String&& a, const String& b) { return std::move(a.append(b)); }
+	String operator +(String&& a, String&& b)
 	{
-		if (rhs.size() <= lhs.capacity() - lhs.size() || rhs.capacity() - rhs.size() < lhs.size()) return std::move(lhs.append(rhs));
-		else return std::move(rhs.insert(0, lhs));
+		if (b.size() <= a.capacity() - a.size() || b.capacity() - b.size() < a.size()) return std::move(a.append(b));
+		else return std::move(b.insert(0, a));
 	}
-	bool operator ==(const String::value_type* lhs, const String& rhs) { return lhs == rhs.str(); }
-	bool operator ==(const String& lhs, const String::value_type* rhs) { return lhs.str() == rhs; }
-	bool operator !=(const String::value_type* lhs, const String& rhs) { return lhs != rhs.str(); }
-	bool operator !=(const String& lhs, const String::value_type* rhs) { return lhs.str() != rhs; }
-	bool operator <(const String::value_type* lhs, const String& rhs) { return lhs < rhs.str(); }
-	bool operator <(const String& lhs, const String::value_type* rhs) { return lhs.str() < rhs; }
-	bool operator >(const String::value_type* lhs, const String& rhs) { return lhs > rhs.str(); }
-	bool operator >(const String& lhs, const String::value_type* rhs) { return lhs.str() > rhs; }
-	bool operator <=(const String::value_type* lhs, const String& rhs) { return lhs <= rhs.str(); }
-	bool operator <=(const String& lhs, const String::value_type* rhs) { return lhs.str() <= rhs; }
-	bool operator >=(const String::value_type* lhs, const String& rhs) { return lhs >= rhs.str(); }
-	bool operator >=(const String& lhs, const String::value_type* rhs) { return lhs.str() >= rhs; }
+	bool operator ==(const String::value_type* a, const String& b) { return a == b.str(); }
+	bool operator ==(const String& a, const String::value_type* b) { return a.str() == b; }
+	bool operator !=(const String::value_type* a, const String& b) { return a != b.str(); }
+	bool operator !=(const String& a, const String::value_type* b) { return a.str() != b; }
+	bool operator <(const String::value_type* a, const String& b) { return a < b.str(); }
+	bool operator <(const String& a, const String::value_type* b) { return a.str() < b; }
+	bool operator >(const String::value_type* a, const String& b) { return a > b.str(); }
+	bool operator >(const String& a, const String::value_type* b) { return a.str() > b; }
+	bool operator <=(const String::value_type* a, const String& b) { return a <= b.str(); }
+	bool operator <=(const String& a, const String::value_type* b) { return a.str() <= b; }
+	bool operator >=(const String::value_type* a, const String& b) { return a >= b.str(); }
+	bool operator >=(const String& a, const String::value_type* b) { return a.str() >= b; }
 	std::ostream& operator <<(std::ostream& os, const String& x) { return os << x.str(); }
 	std::istream& operator >>(std::istream& is, String& x) { return is >> x.str(); }
 
@@ -463,8 +463,75 @@ namespace yat
 	////////////////////////////////
 
 	//	動的配列型
-	template <class Type> using Array = std::vector<Type>;
-
+	template <class Type, class Allocator = std::allocator<Type>>
+	class Array : protected std::vector<Type, Allocator>
+	{
+	private:
+		using base_type = std::vector<Type, Allocator>;
+	public:
+		using typename base_type::value_type;
+		using typename base_type::pointer;
+		using typename base_type::const_pointer;
+		using typename base_type::reference;
+		using typename base_type::const_reference;
+		using typename base_type::iterator;
+		using typename base_type::const_iterator;
+		using typename base_type::reverse_iterator;
+		using typename base_type::const_reverse_iterator;
+		using typename base_type::size_type;
+		using typename base_type::difference_type;
+		using typename base_type::allocator_type;
+		using base_type::vector;
+		using base_type::operator=;
+		using base_type::assign;
+		using base_type::get_allocator;
+		using base_type::front;
+		using base_type::back;
+		using base_type::data;
+		using base_type::begin;
+		using base_type::cbegin;
+		using base_type::end;
+		using base_type::cend;
+		using base_type::rbegin;
+		using base_type::crbegin;
+		using base_type::rend;
+		using base_type::crend;
+		using base_type::empty;
+		using base_type::size;
+		using base_type::max_size;
+		using base_type::reserve;
+		using base_type::capacity;
+		using base_type::shrink_to_fit;
+		using base_type::clear;
+		using base_type::insert;
+		using base_type::emplace;
+		using base_type::erase;
+		using base_type::push_back;
+		using base_type::emplace_back;
+		using base_type::pop_back;
+		using base_type::resize;
+		Array(): base_type() {}
+		Array(const Array&) = default;
+		Array(Array &&) = default;
+		Array& operator =(const Array&) = default;
+		Array& operator =(Array &&) = default;
+		void swap(Array& other) noexcept { base_type::swap(other); }
+		bool isEmpty() const noexcept { return empty(); }
+		explicit operator bool() const noexcept { return !empty(); }
+		void release() { clear(); shrink_to_fit(); }
+		size_t size_bytes() const noexcept { static_assert(std::is_trivially_copyable<value_type>::value, "Array::size_bytes() value_type must be trivially copyable."); return size() * sizeof(value_type); }
+		void push_front(const value_type& value) { insert(begin(), value); }
+		void push_front(value_type&& value) { insert(begin(), std::move(value)); }
+		void pop_front() { erase(begin()); }
+		const value_type& operator[](size_t index) const& { return base_type::operator[](index); }
+		value_type& operator[](size_t index)& { return base_type::operator[](index); }
+		value_type operator[](size_t index)&& { return std::move(base_type::operator[](index)); }
+		const value_type& at(size_t index) const& { return base_type::at(index); }
+		value_type& at(size_t index)& { return base_type::at(index); }
+		value_type at(size_t index)&& { return std::move(base_type::at(index)); }
+		Array& operator <<(const value_type& value) { push_back(value); return *this; }
+		Array& operator <<(value_type&& value) { push_back(std::forward<value_type>(value)); return *this; }
+	};
 
 	////////////////////////////////
 	//
@@ -587,8 +654,7 @@ namespace yat
 	inline void Formatter(FormatData& f, const char* text)   { f.string.append(text); }
 	inline void Formatter(FormatData& f, const String& text) { f.string.append(text); }
 
-	template <class Iterator>
-	inline void Formatter(FormatData& f, Iterator begin, Iterator end)
+	template <class Iterator> inline void Formatter(FormatData& f, Iterator begin, Iterator end)
 	{
 		f.string.push_back('{');
 		for (bool isFirst = true; begin != end; ++begin)
@@ -599,7 +665,18 @@ namespace yat
 		}
 		f.string.push_back('}');
 	}
-
+	template <class Type, size_t N> inline void Formatter(FormatData& f, const Type(&v)[N]) { Formatter(f, std::begin(v), std::end(v)); }
+	template <class Type, size_t N> inline void Formatter(FormatData& f, const std::array<Type, N>& v) { Formatter(f, v.begin(), v.end()); }
+	template <class Type, class Allocator = std::allocator<Type>> inline void Formatter(FormatData& f, const std::vector<Type, Allocator>& v) { Formatter(f, v.begin(), v.end()); }
+	template <class Type> inline void Formatter(FormatData& f, const std::initializer_list<Type>& ilist) { Formatter(f, ilist.begin(), ilist.end()); }
+	template <class Fitrst, class Second> inline void Formatter(FormatData& f, const std::pair<Fitrst, Second>& pair)
+	{
+		f.string.push_back('{');
+		Formatter(f, pair.first);
+		f.string.append(", ");
+		Formatter(f, pair.second);
+		f.string.push_back('}');
+	}
 	template <class Type> inline void Formatter(FormatData& f, const Array<Type>& v) { Formatter(f, v.begin(), v.end()); }
 
 	//	フォーマット可能な型の値を文字列に変換
@@ -744,6 +821,7 @@ namespace std
 {
 	inline void swap(yat::StringView& a, yat::StringView& b) noexcept { a.swap(b); }
 	inline void swap(yat::String& a, yat::String& b) noexcept { a.swap(b); }
+	template <class Type, class Allocator> inline void swap(yat::Array<Type, Allocator>& a, yat::Array<Type, Allocator>& b) noexcept { a.swap(b); }
 }
 
 using namespace std;

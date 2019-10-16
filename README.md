@@ -92,27 +92,30 @@ int main()
 
 **フォーマット可能** な型の値は、`Format()` で文字列に変換できます。
 
-| 型             | Format 結果の例     |
-|---------------|-----------------|
-| int8          | -100            |
-| int16         | -100            |
-| int32         | -100            |
-| int64         | -100            |
-| int128        | -100            |
-| uint8         | 100             |
-| uint16        | 100             |
-| uint32        | 100             |
-| uint64        | 100             |
-| uint128       | 100             |
-| float32       | 12.5000000000   |
-| float64       | 12.5000000000   |
-| float128      | 12.5000000000   |
-| bool          | true            |
-| char          | a               |
-| const char*   | abc             |
-| String        | abc             |
-| Array&lt;int&gt;    | {11, 22, 33}    |
-| Array&lt;String&gt; | {aaa, bbb, ccc} |
+| 型                        | Format 結果の例     |
+|--------------------------|-----------------|
+| int8                     | -100            |
+| int16                    | -100            |
+| int32                    | -100            |
+| int64                    | -100            |
+| int128                   | -100            |
+| uint8                    | 100             |
+| uint16                   | 100             |
+| uint32                   | 100             |
+| uint64                   | 100             |
+| uint128                  | 100             |
+| float32                  | 12.5000000000   |
+| float64                  | 12.5000000000   |
+| float128                 | 12.5000000000   |
+| bool                     | true            |
+| char                     | a               |
+| const char*              | abc             |
+| int[3]                   | {11, 22, 33}    |
+| String                   | abc             |
+| `std::array<int, 3>`     | {11, 22, 33}    |
+| `std::pair<int, String>` | {10, aaa}       |
+| `Array<int>`             | {11, 22, 33}    |
+| `Array<String>`          | {aaa, bbb, ccc} |
 
 ```C++
 int main()
