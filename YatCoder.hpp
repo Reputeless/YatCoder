@@ -1236,16 +1236,12 @@ namespace yat
 			if (Index + 1 == std::tuple_size<Tuple>::value)
 			{
 				if (std::get<Index>(tuple)(value))
-				{
 					result = f(result, value);
-				}
 			}
 			else
 			{
 				if (std::get<Index>(tuple)(value))
-				{
 					Reduce_impl<Fty, ResultType, ValueType, Index + 1, Tuple, std::decay_t<decltype(std::get<Index + 1>(std::declval<Tuple>()))>>(f, result, value, tuple);
-				}
 			}
 		}
 
@@ -1282,36 +1278,23 @@ namespace yat
 			bool include(const value_type& x) const
 			{
 				if (m_base.isEmpty())
-				{
 					return false;
-				}
-
 				bool hasValue = false;
 				auto count_ = m_base.size();
 				auto value = m_base.startValue();
 				const auto step_ = m_base.step();
 				const auto includeFunc = [&hasValue, x](const auto& value) { hasValue = (value == x); };
 				const auto functions = m_functions;
-
 				for (;;)
 				{
 					Apply(includeFunc, value, functions);
-
 					if (hasValue)
-					{
 						return true;
-					}
-
 					if (--count_)
-					{
 						value += step_;
-					}
 					else
-					{
 						break;
-					}
 				}
-
 				return false;
 			}
 
@@ -1319,36 +1302,24 @@ namespace yat
 			bool include_if(Fty f) const
 			{
 				if (m_base.isEmpty())
-				{
 					return false;
-				}
-
 				bool hasValue = false;
 				auto count_ = m_base.size();
 				auto value = m_base.startValue();
 				const auto step_ = m_base.step();
 				const auto includeFunc = [&hasValue, f](const auto& value) { hasValue = f(value); };
 				const auto functions = m_functions;
-
 				for (;;)
 				{
 					Apply(includeFunc, value, functions);
 
 					if (hasValue)
-					{
 						return true;
-					}
-
 					if (--count_)
-					{
 						value += step_;
-					}
 					else
-					{
 						break;
-					}
 				}
-
 				return false;
 			}
 
@@ -1360,14 +1331,9 @@ namespace yat
 				each([&s, &isFirst, sep = sep](const auto& value)
 					{
 						if (isFirst)
-						{
 							isFirst = false;
-						}
 						else
-						{
 							s.append(sep);
-						}
-
 						s.append(Format(value));
 					});
 				s.append(end);
@@ -1386,31 +1352,20 @@ namespace yat
 			constexpr auto reduce(Fty f, R init) const
 			{
 				auto result = init;
-
 				if (m_base.isEmpty())
-				{
 					return result;
-				}
-
 				auto count_ = m_base.size();
 				auto value = m_base.startValue();
 				const auto step_ = m_base.step();
 				const auto functions = m_functions;
-
 				for (;;)
 				{
 					Reduce(f, result, value, functions);
-
 					if (--count_)
-					{
 						value += step_;
-					}
 					else
-					{
 						break;
-					}
 				}
-
 				return result;
 			}
 
