@@ -444,3 +444,22 @@ int main()
 	Print << ReadLine().count('1');
 }
 ```
+
+### [ABC081B - Shift only](https://atcoder.jp/contests/abs/tasks/abc081_b)
+```C++
+int main()
+{
+	const int32 N = ReadInt();
+	Array<int32> as = ReadIntArray(N);
+	int32 result = 0;
+
+	while (as.all(IsEven))
+	{
+		as.each([](int32& a) { a /= 2; });
+		++result;
+	}
+
+	Print << result;
+}
+```
+
