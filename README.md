@@ -647,7 +647,7 @@ int main()
 		{
 			if (S.ends_with(keyword))
 			{
-				S.erase(S.end() - keyword.size(), S.end());
+				S.dropBack(keyword.size());
 				removed = true;
 				break;
 			}

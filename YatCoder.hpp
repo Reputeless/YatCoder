@@ -340,6 +340,11 @@ namespace yat
 		{
 			return (size() >= view.size()) && std::equal(view.begin(), view.end(), end() - view.size());
 		}
+		String& dropBack(size_t n)
+		{
+			erase(end() - std::min(n, size()), end());
+			return *this;
+		}
 	};
 	template <class StringViewIsh, class = String::IsStringViewIsh<StringViewIsh>>
 	inline String operator +(const String::value_type a, const StringViewIsh& b)
