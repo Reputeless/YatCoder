@@ -606,3 +606,29 @@ int main()
 	Print << ReadIntArray(N).unique().size();
 }
 ```
+
+### [ABC085C - Otoshidama](https://atcoder.jp/contests/abs/tasks/abc085_c)
+```C++
+int main()
+{
+	const int32 N = ReadInt();
+	const int32 Y = ReadInt();
+
+	for (auto n10000 : Range(0, N))
+	{
+		for (auto n5000 : Range(0, N - n10000))
+		{
+			const int32 n1000 = N - n10000 - n5000;
+			const int32 sum = (n10000 * 10000) + (n5000 * 5000) + (n1000 * 1000);
+
+			if (sum == Y)
+			{
+				Print << n10000 << ' ' << n5000 << ' ' << n1000;
+				return 0;
+			}
+		}
+	}
+
+	Print << "-1 -1 -1";
+}
+```
