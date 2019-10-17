@@ -632,3 +632,34 @@ int main()
 	Print << "-1 -1 -1";
 }
 ```
+
+### [ABC049C - 白昼夢 / Daydream](https://atcoder.jp/contests/abs/tasks/arc065_a)
+```C++
+int main()
+{
+	String S = ReadWord();
+
+	while (S)
+	{
+		bool removed = false;
+
+		for (StringView keyword : { "eraser", "erase", "dreamer", "dream" })
+		{
+			if (S.ends_with(keyword))
+			{
+				S.erase(S.end() - keyword.size(), S.end());
+				removed = true;
+				break;
+			}
+		}
+
+		if (!removed)
+		{
+			break;
+		}
+	}
+
+	Print << YESNO(S.isEmpty());
+}
+```
+
