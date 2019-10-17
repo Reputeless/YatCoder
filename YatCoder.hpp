@@ -332,6 +332,14 @@ namespace yat
 					return count;
 			}
 		}
+		bool ends_with(value_type ch) const noexcept
+		{
+			return !m_string.empty() && (m_string[m_string.size() - 1] == ch);
+		}
+		bool ends_with(StringView view) const
+		{
+			return (size() >= view.size()) && std::equal(view.begin(), view.end(), end() - view.size());
+		}
 	};
 	template <class StringViewIsh, class = String::IsStringViewIsh<StringViewIsh>>
 	inline String operator +(const String::value_type a, const StringViewIsh& b)
@@ -1365,6 +1373,7 @@ namespace yat
 	inline void Formatter(FormatData& f, bool b) { f.string.append(b ? "true" : "false"); }
 	inline void Formatter(FormatData& f, char c) { f.string.push_back(c); }
 	inline void Formatter(FormatData& f, const char* text)   { f.string.append(text); }
+	inline void Formatter(FormatData& f, StringView text)    { f.string.append(text); }
 	inline void Formatter(FormatData& f, const String& text) { f.string.append(text); }
 
 	template <class Iterator> inline void Formatter(FormatData& f, Iterator begin, Iterator end)
@@ -2189,6 +2198,9 @@ namespace yat
 
 	// 整数の (1 + N) 桁目の数を返す
 	template <class Integer> int32 GetDigit(Integer n, size_t index) noexcept { return static_cast<int32>((n / PowerOf10<Integer>(index)) % 10); }
+
+	// `true` なら "YES" を、`false` なら "NO" を返す
+	constexpr StringView YESNO(bool b) { return b ? "YES" : "NO"; }
 }
 
 namespace std
