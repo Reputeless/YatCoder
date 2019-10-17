@@ -2184,7 +2184,7 @@ namespace yat
 	}
 
 	// x が min 以上 max 以下である場合に `true` を返す
-	template <class Type> inline constexpr bool InRange(const Type& x, const Type& min, const Type& max) { return (min <= x) && (x <= max); }
+	template <class Type> inline constexpr bool InRange(const Type& x, const Type& min, const Type& max) noexcept(min <= x) { return (min <= x) && (x <= max); }
 
 	// 奇数の場合に `true` を返す
 	constexpr auto IsOdd = detail::Odd_impl();
@@ -2205,10 +2205,10 @@ namespace yat
 	template <class Integer> int32 GetDigit(Integer n, size_t index) noexcept { return static_cast<int32>((n / PowerOf10<Integer>(index)) % 10); }
 
 	// `true` なら "YES" を、`false` なら "NO" を返す
-	constexpr StringView YESNO(bool b) { return b ? "YES" : "NO"; }
+	constexpr StringView YESNO(bool b) noexcept { return b ? "YES" : "NO"; }
 
 	// `true` なら "Yes" を、`false` なら "No" を返す
-	constexpr StringView YesNo(bool b) { return b ? "Yes" : "No"; }
+	constexpr StringView YesNo(bool b) noexcept { return b ? "Yes" : "No"; }
 }
 
 namespace std
