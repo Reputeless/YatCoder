@@ -693,6 +693,7 @@ int main()
 		else
 		{
 			result = false;
+			break;
 		}
 	}
 
