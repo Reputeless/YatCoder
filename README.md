@@ -663,3 +663,39 @@ int main()
 }
 ```
 
+### [ABC086C - Traveling](https://atcoder.jp/contests/abs/tasks/arc089_a)
+```C++
+struct Plan
+{
+	int32 t;
+	Point pos;
+};
+
+int main()
+{
+	const int32 N = ReadInt();
+	Plan current{ 0, Point(0, 0) };
+	bool result = true;
+
+	for (auto i : step(N))
+	{
+		Plan next;
+		next.t = ReadInt();
+		next.pos.x = ReadInt();
+		next.pos.y = ReadInt();
+
+		const int32 md = next.pos.manhattanDistanceFrom(current.pos);
+		const int32 td = next.t - current.t;
+		if ((md <= td) && IsEven(td - md))
+		{
+			current = next;
+		}
+		else
+		{
+			result = false;
+		}
+	}
+
+	Print << YesNo(result);
+}
+```

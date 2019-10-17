@@ -2184,7 +2184,7 @@ namespace yat
 	}
 
 	// x が min 以上 max 以下である場合に `true` を返す
-	template <class Type> inline constexpr bool InRange(const Type& x, const Type& min, const Type& max) noexcept(min <= x) { return (min <= x) && (x <= max); }
+	template <class Type> inline constexpr bool InRange(const Type& x, const Type& min, const Type& max) { return (min <= x) && (x <= max); }
 
 	// 奇数の場合に `true` を返す
 	constexpr auto IsOdd = detail::Odd_impl();
@@ -2209,6 +2209,29 @@ namespace yat
 
 	// `true` なら "Yes" を、`false` なら "No" を返す
 	constexpr StringView YesNo(bool b) noexcept { return b ? "Yes" : "No"; }
+
+	////////////////////////////////
+	//
+	//	10. Point
+	//
+	////////////////////////////////
+
+	struct Point
+	{
+		int32 x, y;
+		Point() = default;
+		Point(const Point&) = default;
+		Point(Point&&) = default;
+		Point& operator =(const Point&) = default;
+		Point& operator =(Point&&) = default;
+		constexpr Point(int32 _x, int32 _y) noexcept : x(_x), y(_y) {}
+		constexpr int32 manhattanDistanceFrom(const Point& other) const noexcept
+		{
+			const auto minXmaxX = std::minmax(x, other.x);
+			const auto minYmaxY = std::minmax(y, other.y);
+			return (minXmaxX.second - minXmaxX.first) + (minYmaxY.second - minYmaxY.first);
+		}
+	};
 }
 
 namespace std
