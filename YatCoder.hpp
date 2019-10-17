@@ -2206,6 +2206,9 @@ namespace yat
 
 	// `true` なら "YES" を、`false` なら "NO" を返す
 	constexpr StringView YESNO(bool b) { return b ? "YES" : "NO"; }
+
+	// `true` なら "Yes" を、`false` なら "No" を返す
+	constexpr StringView YesNo(bool b) { return b ? "Yes" : "No"; }
 }
 
 namespace std
