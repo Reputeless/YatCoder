@@ -32,7 +32,9 @@
 # include <cstdlib>
 # include <cstring>
 # include <ctime>
-# include <cuchar>
+# if !defined(__APPLE__)
+#	include <cuchar>
+# endif
 # include <cwchar>
 # include <cwctype>
 # include <deque>
