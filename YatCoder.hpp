@@ -674,7 +674,6 @@ namespace yat
 		{
 			return any(f);
 		}
-		template <class T = Type>
 		bool isSorted() const
 		{
 			const size_t size_ = size();
@@ -1018,18 +1017,15 @@ namespace yat
 
 			return std::move(*this);
 		}
-		template <class T = Type>
 		Array& rsort()
 		{
 			std::sort(begin(), end(), std::greater<>());
 			return *this;
 		}
-		template <class T = Type>
 		Array rsorted() const&
 		{
 			return Array(*this).rsort();
 		}
-		template <class T = Type>
 		Array rsorted()&&
 		{
 			rsort();
@@ -1054,14 +1050,12 @@ namespace yat
 
 			return Array(begin() + index, begin() + std::min(index + length, size()));
 		}
-		template <class T = Type>
 		Array& sort()
 		{
 			std::sort(begin(), end());
 
 			return *this;
 		}
-		template <class T = Type>
 		Array& stable_sort()
 		{
 			std::stable_sort(begin(), end());
@@ -1082,24 +1076,20 @@ namespace yat
 
 			return *this;
 		}
-		template <class T = Type>
 		Array sorted() const&
 		{
 			return Array(*this).sort();
 		}
-		template <class T = Type>
 		Array stable_sorted() const&
 		{
 			return Array(*this).stable_sort();
 		}
-		template <class T = Type>
 		Array sorted()&&
 		{
 			sort();
 
 			return std::move(*this);
 		}
-		template <class T = Type>
 		Array stable_sorted()&&
 		{
 			stable_sort();
